@@ -38,7 +38,10 @@ class NbPatcher(BasePatcher):
 
         # verify signature of encryption data at expected location
         enc_data_offset = 0x400
-        if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
+        raw_scooter_enc_id = self.data[enc_data_offset : enc_data_offset + 16]
+        null_pos = raw_scooter_enc_id.find(b'\x00')
+        scooter_enc_id = raw_scooter_enc_id[:null_pos] if null_pos != -1 else raw_scooter_enc_id
+        if scooter_enc_id not in [b'NineBotScooter', b'SCOOTER_VCU_xxU2']:
             raise SignatureException('Encryption data not found')
 
         # patch rand code against custom one
@@ -62,7 +65,10 @@ class NbPatcher(BasePatcher):
 
         # verify signature of encryption data at expected location
         enc_data_offset = 0x400
-        if self.data[enc_data_offset : enc_data_offset + 14] != b'NineBotScooter':
+        raw_scooter_enc_id = self.data[enc_data_offset : enc_data_offset + 16]
+        null_pos = raw_scooter_enc_id.find(b'\x00')
+        scooter_enc_id = raw_scooter_enc_id[:null_pos] if null_pos != -1 else raw_scooter_enc_id
+        if scooter_enc_id not in [b'NineBotScooter', b'SCOOTER_VCU_xxU2']:
             raise SignatureException('Encryption data not found')
 
         # patch first occurance of current against custom key
@@ -91,7 +97,7 @@ class NbPatcher(BasePatcher):
             post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
             self.data[patch_slice] = post
 
-            return self.ret("region_free", ofs_from, pre, post)
+            return self.ret("us_region_spoof", ofs_from, pre, post)
 
         return []
     
