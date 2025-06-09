@@ -3,739 +3,983 @@
 -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="author" content="D. Nandha">
-<meta name="description" content="NextGen Firmware Toolkit">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='ngfw.ico') }}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ngfw.css') }}">
 
-<title>NextGen Firmware Toolkit</title>
+<head>
+    <meta charset="utf-8">
+    <meta name="author" content="D. Nandha">
+    <meta name="description" content="NextGen Firmware Toolkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='ngfw.ico') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='ngfw.css') }}">
+
+    <title>NextGen Firmware Toolkit</title>
 </head>
 
 <body onload="OnLoad()">
 
-<noscript>This website requires JavaScript.</noscript>
+    <noscript>This website requires JavaScript.</noscript>
 
     <div id="disclaimer" class="modal red darken-4 white-text">
         <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">User Agreement</h4>
-            </div>
-            <div class="modal-body">
-                I acknowledge that this site only provides information for test purposes and for non-commercial, personal use only.
-                <br /><br />
-                I am familiar with my local laws and acknowledge that I solely am responsible for potential harm caused to myself or others.
-                <br />
-		<br /><b>I own the hardware and software subject to modification!</b>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">User Agreement</h4>
+                </div>
+                <div class="modal-body">
+                    I acknowledge that this site only provides information for test purposes and for non-commercial,
+                    personal use only.
+                    <br /><br />
+                    I am familiar with my local laws and acknowledge that I solely am responsible for potential harm
+                    caused to myself or others.
+                    <br />
+                    <br /><b>I own the hardware and software subject to modification!</b>
 
-        <br /><br /><u>Disclaimer</u><br />This site is not affiliated with any brand or manufacturer and does not host any copyright material. The user has the option to upload a file, which is modified according to the user selection. The modified file is presented to the user end-to-end and not saved on any servers. Please read and accept the <a href="/disclaimer">full disclaimer</a>.
-            </div>
-            <div class="modal-footer red darken-2 white-text">
-                <i>By clicking on "Agree" I confirm the aforementioned usage notice and accept the disclaimer.</i>
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Agree</button>
-            </div>
-        </div>
-        </div>
-    </div>
-
-<div class="container">
-    <div class="text-center mb-5">
-        <h1 class="display-1">NextGen FW</h1>
-
-        <p class="lead">
-            Configure your own NextGen firmware (NGFW) by adjusting the options below. 
-            <span class="badge bg-success">V3.0 & V3.1 Supported!</span>
-        </p>
-        <p class="lead">
-            <span class="badge bg-danger">New:</span>
-            G2, F2-Series and 4Pro-Series support! More patches and features added continuously.
-        </p>
-        <p class="text">
-        Important notes: This information service is provided free of charge and for personal use only. Commercial use, selling or distributing files, services or parts related to this service is prohibited (see <a href="/disclaimer">disclaimer</a>). If you decide to use any of the information provided here for your project, please add a reference to this site! The source code is available at <a href="https://github.com/scooterteam/ngfw-patcher">GitHub</a>. 
-        </p>
-        <p class="text r">
-            <span class="text-danger">Never apply a patch more than once, as it may damage your controller.</span><br>
-            <span class="text-muted">Notice that firmwares tagged as 'Compat' may not already include a Model/Key Check Patch.</span>
-        </p>
-    </div>
-
-    <hr>
-    <form action="/cfw"  method="POST" enctype="multipart/form-data">
-    <div class="preset-section">
-        <div class="row align-items-center">
-            <div class="col-md-4">
-                <h5>
-                    <i class="fas fa-sliders-h"></i>
-                    Load Preset
-                </h5>
-            </div>
-            <div class="col-md-8">
-                <div class="preset-select">
-            <select class="form-select" id="devselect" name="device" onchange="ChangeDevice()">
-                        <optgroup label="Xiaomi">
-                <option value="1s">1S</option>
-                <option value="pro2">Pro2</option>
-                <option value="lite">Lite/Essential</option>
-                <option value="mi3">Mi3</option>
-                        </optgroup>
-                        <optgroup label="4 Pro Series">
-                <option value="4pro">4Pro</option>
-                <option value="4plus">4ProPlus</option>
-                <option value="4max">4ProMax</option>
-                        </optgroup>
-                        <optgroup label="F/G Series">
-                <option value="f2">F2</option>
-                <option value="f2plus">F2Plus</option>
-                <option value="f2pro">F2Pro</option>
-                <option value="g2">G2</option>
-                        </optgroup>
-            </select>
+                    <br /><br /><u>Disclaimer</u><br />This site is not affiliated with any brand or manufacturer and
+                    does not host any copyright material. The user has the option to upload a file, which is modified
+                    according to the user selection. The modified file is presented to the user end-to-end and not saved
+                    on any servers. Please read and accept the <a href="/disclaimer">full disclaimer</a>.
+                </div>
+                <div class="modal-footer red darken-2 white-text">
+                    <i>By clicking on "Agree" I confirm the aforementioned usage notice and accept the disclaimer.</i>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Agree</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <hr/>
-    <div class="section-container">
-        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#fw-section">
-            <i class="fas fa-code"></i>FW
-            <i class="fas fa-chevron-down section-chevron"></i>
-        </h5>
-        <div class="collapse" id="fw-section">
-    <div class="card-group text-center">
-		<div id="disable_key_check" class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="rml">
-                <label class="form-check-label"><b>Disable Model Check</b></label><!-- Xiaomi -->
-                <label class="form-check-label"><b>Disable Key Check</b></label><!-- Ninebot -->
-            </div>
-            <div class="card-body"><!-- Xiaomi -->
-                Some DRVs restrict flashing of DRVs to the ones belonging to the model. This mod disables checks and allows flashing all DRVs (for example: DRV016 to DRV247/SHFW).<br/>
-            </div>
-            <div class="card-body"><!-- Ninebot -->
-                Disables the check if the scooter's current encryption key matches the key in the new firmware. It can be useful when you want to change your current key to a different one.
-            </div>
-        </div>
-		<div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="dmn">
-                <label class="form-check-label"><b>Disable Motor NTC (AT32)</b></label>
-            </div>
-            <div class="card-body">
-                Disables error 41 when the motor temperature sensor is returning zero / low values. This allows running the firmware on models without a motor NTC.
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="embed_enc_key_cb" onchange="CheckForm('embed_enc_key', this);">
-                <label class="form-check-label"><b>Embed Encryption Key</b></label>
-            </div>
-            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
-                <div class="card-text">Custom encryption key to be embedded into the firmware. Future updates will have to be encrypted with this key. Changing key from custom key in installation requires a Model/Key Check Patch.</div>
-                <div class="py-2"></div>
-                <input class="form-control text-center" type="text" name="embed_enc_key">
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="custom_enc_key_cb" onchange="CheckForm('custom_enc_key', this);">
-                <label class="form-check-label"><b>Custom Encryption Key</b></label>
-            </div>
-            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
-                <div class="card-text">Custom encryption key the firmware will be encrypted with. This key has to match the key embedded in the current installation.</div>
-                <div class="py-2"></div>
-                <input class="form-control text-center" type="text" name="custom_enc_key">
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center d-grid">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="embed_rand_code_cb"  onchange="CheckForm('embed_rand_code', this);">
-                <label class="form-check-label"><b>Embed Rand Code</b></label>
-            </div>
-            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
-                <div class="card-text">Custom rand code to be embedded into the firmware.</div>
-                <div class="py-2"></div>
-                <input class="form-control text-center" type="text" name="embed_rand_code">
-            </div>
-        </div>
-            </div>
-        </div>
-    </div>
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-1">NextGen FW</h1>
 
-    <br/>
-    <div class="section-container">
-        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#esc-section">
-            <i class="fas fa-microchip"></i>ESC
-            <i class="fas fa-chevron-down section-chevron"></i>
-        </h5>
-        <div class="collapse" id="esc-section">
-    <div class="card-group text-center">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" name="dpc" type="checkbox">
-                <label class="form-check-label"><b>Direct Power Control (DPC)</b></label>
-            </div>
-            <div class="card-body">
-                Activate/Deactivate DPC via register. Direct Power Control (DPC) ignores speed limits.<br/>
-                Note on 4Pro & F2/G2: This option permanently enables DPC.
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="remove_autobrake">
-                <label class="form-check-label"><b>Remove Speed Check</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-text">
-                    Remove automatic braking and beep when above a certain speed.
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="remove_charging_mode">
-                <label class="form-check-label"><b>Remove Charging Mode</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-text">
-                    Ignore input from charging line.
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" name="remove_kers" type="checkbox" onclick="ChangeForm('kml', false)">
-                <label class="form-check-label"><b>No KERS</b></label>
-            </div>
-            <div class="card-body">
-                Deactivates Kinetic Energy Recovery System (KERS).
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" name="motor_start_speed_cb" type="checkbox" onchange="CheckForm('motor_start_speed', this);">
-                <label class="form-check-label"><b>Motor Start Speed</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    <div class="row">
-                        <div class="col">km/h</div>
-                        <div class="col" id="mss_value"></div>
-                    </div>
-                    <div class="row">
-                        <span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('motor_start_speed', 'mss_value')">-</button><input class="form-range" name="motor_start_speed" type="range" step="0.5" min="0" max="10" value="5" onchange="OnSliderChange('mss_value', this.value)" oninput="OnSliderChange('mss_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('motor_start_speed', 'mss_value')">+</button></span>
-                    </div>
-                </div>
-                <div class="card-text">
-                    Minimum required speed before the motor will start.
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" name="crc_cb" type="checkbox" onchange="CheckForm('crc', this);">
-                <label class="form-check-label"><b>CRC</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    <div class="row">
-                        <div class="col" id="crc_value"></div>
-                    </div>
-                    <div class="row">
-                        <span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('crc', 'crc_value')">-</button><input class="form-range" name="crc" type="range" step="1" min="0" max="2000" value="300" onchange="OnSliderChange('crc_value', this.value)" oninput="OnSliderChange('crc_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('crc', 'crc_value')">+</button></span>
-                    </div>
-                </div>
-                <div class="card-text">
-                    Current raising coefficient, defines the increments of current increase.
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" name="shutdown_time_cb" type="checkbox" onchange="CheckForm('shutdown_time', this);">
-                <label class="form-check-label"><b>Shutdown Time</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-			<div>Seconds</div>
-			<span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('shutdown_time', 'shutdown_value')">-</button><input class="form-range" name="shutdown_time" type="range" step="0.5" min="1" max="20" value="3" onchange="OnSliderChange('shutdown_value', this.value)" oninput="OnSliderChange('shutdown_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('shutdown_time', 'shutdown_value')">+</button></span><div id="shutdown_value">3</div>
-                </div>
-                <div class="card-text">
-                    Time you have to press the power button until the device turns off.
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" name="cc_delay_cb" type="checkbox" onchange="CheckForm('cc_delay', this);">
-                <label class="form-check-label"><b>Cruise Control Delay</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-			<div>Seconds</div>
-			<span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('cc_delay', 'cc_delay_val')">-</button><input class="form-range" name="cc_delay" type="range" step="1" min="1" max="9" value="5" onchange="OnSliderChange('cc_delay_val', this.value)" oninput="OnSliderChange('cc_delay_val', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('cc_delay', 'cc_delay_val')">+</button></span><div id="cc_delay_val">5</div>
-                </div>
-                <div class="card-text">
-                    Time needed for cruise control to kick in.
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-group">
-        <div class="card text-center m-1">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="kml" onchange="CheckForm('kml_l0', this);CheckForm('kml_l1', this);CheckForm('kml_l2', this);" onclick="ChangeForm('remove_kers', false);">
-                <label class="form-check-label"><b>Custom KERS</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    <span class="input-group-text">Weak:&nbsp;<button type="button" class="btn btn-secondary" onclick="SliderDown('kml_l0', 'kml_l0_value')">-</button><input class="form-range" name="kml_l0" type="range" step="1" min="0" max="30" value="6" onchange="OnSliderChange('kml_l0_value', this.value)" oninput="OnSliderChange('kml_l0_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('kml_l0', 'kml_l0_value')">+</button></span><div id="kml_l0_value">6</div>
-                    <span class="input-group-text">Middle:&nbsp;<button type="button" class="btn btn-secondary" onclick="SliderDown('kml_l1', 'kml_l1_value')">-</button><input class="form-range" name="kml_l1" type="range" step="1" min="0" max="30" value="12" onchange="OnSliderChange('kml_l1_value', this.value)" oninput="OnSliderChange('kml_l1_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('kml_l1', 'kml_l1_value')">+</button></span><div id="kml_l1_value">12</div>
-                    <span class="input-group-text">Strong:&nbsp;<button type="button" class="btn btn-secondary" onclick="SliderDown('kml_l2', 'kml_l2_value')">-</button><input class="form-range" name="kml_l2" type="range" step="1" min="0" max="30" value="20" onchange="OnSliderChange('kml_l2_value', this.value)" oninput="OnSliderChange('kml_l2_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('kml_l2', 'kml_l2_value')">+</button></span><div id="kml_l2_value">20</div>
-                </div>
-
-                <div class="card-text">
-                    Set the three KERS multiplier levels individually. Set value to "0" to turn KERS off. <b>Note:</b> Overrides <b>No KERS</b> mod!
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <br/>
-    <div class="section-container">
-        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#special-section">
-            <i class="fas fa-magic"></i>Special
-            <i class="fas fa-chevron-down section-chevron"></i>
-        </h5>
-        <div class="collapse" id="special-section">
-    <div class="card-group text-center">
-		<div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="eco_mode" onclick="Ped_To_Eco(this)">
-                <label class="form-check-label"><b>Pedestrian -> Eco Mode</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    Replace pedestrian mode with Eco mode. This gives you another driveable mode with slightly reduced consumption at 15 km/h.
-                </div>
-                <div class="card-text">
-                    This is a convenience function! The same effect can be achieved by setting nominal+maximum current and speed limit higher for the pedestrian mode manually.<br/>
-                </div>
-            </div>
-        </div>
-		<div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="pnb">
-                <label class="form-check-label"><b>Pedestrian No-Blink</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    Remove flashing / blinking taillight in pedestrian mode.
-                </div>
-                <div class="card-text">
-                    Makes the taillight togglable like in every other mode. Can be combined with static brakelight to remove blinking on brake (when region-free).
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center">
-		<div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="blm" onchange="CheckForm('blm_alm', this);">
-                <label class="form-check-label"><b>Static Brakelight</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    Replaces the blinking backlight by a static backlight on braking (improved version).
-                            When "Auto-Light" is additionally selected the default backlight brightness is lowered.
-                </div>
-                <div class="card-text">
-                    <input class="form-check-input" type="checkbox" name="blm_alm">
-                    <label class="form-check-label"><b>Auto-Light</b></label><br/>
-                    This mod gives the same effect as rear brakelights on a car when braking.
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="bts">
-                <label class="form-check-label"><b>Button Swap</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    Swaps the function of single and double button tap.
-                </div>
-                <div class="card-text">
-                    A single button tap switches mode, two button taps turn light on/off.<br/>
-                    Useful if you want to be able to switch modes more easily.
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="ammeter">
-                <label class="form-check-label"><b>Current-Meter</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    Replaces the battery percentage shown on dashboard by actual current consumption.
-                    No bars means no consumption, full bars means 25 amps consumption.<br/>
-                </div>
-                <div class="card-text">
-                    With this mod the battery percentage can only be read out using an app.<br/>
-                    <span style="color: red;">&#9888;&nbsp;When charging the dashboard will show a constant "0", but charging works normally.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <br/>
-    <div class="section-container">
-        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#limits-section">
-            <i class="fas fa-tachometer-alt"></i>Limits
-            <i class="fas fa-chevron-down section-chevron"></i>
-        </h5>
-        <div class="collapse" id="limits-section">
-    <div class="card-group text-center">
-		<div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="rfm">
-                <label class="form-check-label"><b>Region-Free</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    Remove regional restrictions normally imposed by the serial number, such as 20 km/h speed limit, missing cruise control and backlight-on feature. If changing speed limits doesn't have any effect, you might want to enable this mod!<br/>
-                    Effectively converts a european device to an international device.
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="sl_cb" onchange="CheckForm('sl_sport', this);CheckForm('sl_drive', this); CheckForm('sl_ped', this);" onclick="ChangeForm('eco_mode', false);">
-                <label class="form-check-label"><b>Speed Limit</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Sport Mode, km/h</label></div>
-                            <div class="col" id="sl_sport_value"></div>
-                        </div>
-                        <div class="row">
-                            <span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('sl_sport', 'sl_sport_value')">-</button><input class="form-range" name="sl_sport" type="range" step="1" min="0" max="65" value="0" onchange="OnSliderChange('sl_sport_value', this.value)" oninput="OnSliderChange('sl_sport_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('sl_sport', 'sl_sport_value')">+</button></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Drive Mode, km/h</label></div>
-                            <div class="col" id="sl_drive_value"></div>
-                        </div>
-                        <div class="row">
-				<span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('sl_drive', 'sl_drive_value')">-</button><input class="form-range" name="sl_drive" type="range" step="1" min="0" max="65" value="0" onchange="OnSliderChange('sl_drive_value', this.value)" oninput="OnSliderChange('sl_drive_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('sl_drive', 'sl_drive_value')">+</button></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Eco / Pedestrian Mode, km/h</label></div>
-                            <div class="col" id="sl_ped_value"></div>
-                        </div>
-                        <div class="row">
-				<span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('sl_ped', 'sl_ped_value')">-</button><input class="form-range" name="sl_ped" type="range" step="1" min="0" max="65" value="0" onchange="OnSliderChange('sl_ped_value', this.value)" oninput="OnSliderChange('sl_ped_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('sl_ped', 'sl_ped_value')">+</button></span>
-                        </div>
-                </div>
-                <div class="card-text">
-                    These values define the maximum speed of each mode. <b>Note:</b> DPC mode ignores speed limits.
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="amps_cb" onchange="CheckForm('amps_sport', this);CheckForm('amps_drive', this); CheckForm('amps_ped', this);" onclick="ChangeForm('eco_mode', false);">
-                <label class="form-check-label"><b>Nominal Current</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Sport Mode, mA</label></div>
-                            <div class="col" id="amps_sport_value"></div>
-                        </div>
-                        <div class="row">
-                            <span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('amps_sport', 'amps_sport_value')">-</button><input class="form-range" name="amps_sport" type="range" step="500" min="0" max="45000" value="0" onchange="OnSliderChange('amps_sport_value', this.value)" oninput="OnSliderChange('amps_sport_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('amps_sport', 'amps_sport_value')">+</button></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Drive Mode, mA</label></div>
-                            <div class="col" id="amps_drive_value"></div>
-                        </div>
-                        <div class="row">
-				<span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('amps_drive', 'amps_drive_value')">-</button><input class="form-range" name="amps_drive" type="range" step="500" min="0" max="45000" value="0" onchange="OnSliderChange('amps_drive_value', this.value)" oninput="OnSliderChange('amps_drive_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('amps_drive', 'amps_drive_value')">+</button></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Eco / Pedestrian Mode, mA</label></div>
-                            <div class="col" id="amps_ped_value"></div>
-                        </div>
-                        <div class="row">
-				<span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('amps_ped', 'amps_ped_value')">-</button><input class="form-range" name="amps_ped" type="range" step="500" min="0" max="45000" value="0" onchange="OnSliderChange('amps_ped_value', this.value)" oninput="OnSliderChange('amps_ped_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('amps_ped', 'amps_ped_value')">+</button></span>
-                        </div>
-                </div>
-                <div class="card-text">
-                    These values define the maximum current that is applied when the throttle lever is fully pressed (for each mode). Increasing the value will give a better acceleration and up-hill performance, at the cost of battery life.<br/>
-                    <span style="color: red;">&#9888;&nbsp;Affects battery life! Too high currents can toast your cables or controller!!</span>
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="amps_max_cb" onchange="CheckForm('amps_sport_max', this);CheckForm('amps_drive_max', this); CheckForm('amps_ped_max', this);" onclick="ChangeForm('eco_mode', false);">
-                <label class="form-check-label"><b>Maximum Current</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Sport Mode, max. mA</label></div>
-                            <div class="col" id="amps_sport_max_value"></div>
-                        </div>
-                        <div class="row">
-                            <span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('amps_sport_max', 'amps_sport_max_value')">-</button><input class="form-range" name="amps_sport_max" type="range" step="500" min="0" max="90000" value="0" onchange="OnSliderChange('amps_sport_max_value', this.value)" oninput="OnSliderChange('amps_sport_max_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('amps_sport_max', 'amps_sport_max_value')">+</button></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Drive Mode, max. mA</label></div>
-                            <div class="col" id="amps_drive_max_value"></div>
-                        </div>
-                        <div class="row">
-				<span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('amps_drive_max', 'amps_drive_max_value')">-</button><input class="form-range" name="amps_drive_max" type="range" step="500" min="0" max="90000" value="0" onchange="OnSliderChange('amps_drive_max_value', this.value)" oninput="OnSliderChange('amps_drive_max_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('amps_drive_max', 'amps_drive_max_value')">+</button></span>
-                        </div>
-
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Eco / Pedestrian Mode, max. mA</label></div>
-                            <div class="col" id="amps_ped_max_value"></div>
-                        </div>
-                        <div class="row">
-				<span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('amps_ped_max', 'amps_ped_max_value')">-</button><input class="form-range" name="amps_ped_max" type="range" step="500" min="0" max="90000" value="0" onchange="OnSliderChange('amps_ped_max_value', this.value)" oninput="OnSliderChange('amps_ped_max_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('amps_ped_max', 'amps_ped_max_value')">+</button></span>
-                        </div>
-                </div>
-                <div class="card-text">
-                    These values the define the hard upper current limit of each mode. Upon reaching these values, the current is fully cut - the motor can't draw currents higher than this.<br/>
-                    <span style="color: red;">&#9888;&nbsp;Affects battery life! Too high currents can toast your cables or controller!!</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="amps_brake_min_cb" onchange="CheckForm('amps_brake_min', this);">
-                <label class="form-check-label"><b>Minimum Brake Current</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Brake, min. mA</label></div>
-                            <div class="col" id="amps_brake_min_value"></div>
-                        </div>
-                        <div class="row">
-                            <span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('amps_brake_min', 'amps_brake_min_value')">-</button><input class="form-range" name="amps_brake_min" type="range" step="500" min="0" max="65000" value="0" onchange="OnSliderChange('amps_brake_min_value', this.value)" oninput="OnSliderChange('amps_brake_min_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('amps_brake_min', 'amps_brake_min_value')">+</button></span>
-                        </div>
-                </div>
-                <div class="card-text">
-                    This value defines the brake current that is always added whenever you touch the brake. Gives you control over the lower end of brake. When lowering this value, you should increase the <b>Maximum Brake Current</b> by the same amount!<br/>
-                    <span style="color: red;">&#9888;&nbsp;Affects SAFETY! Modify at your own risk!!</span>
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="amps_brake_max_cb" onchange="CheckForm('amps_brake_max', this);">
-                <label class="form-check-label"><b>Maximum Brake Current</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                        <div class="row">
-                            <div class="col"><label class="form-check-label">Brake, max. mA</label></div>
-                            <div class="col" id="amps_brake_max_value"></div>
-                        </div>
-                        <div class="row">
-                            <span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('amps_brake_max', 'amps_brake_max_value')">-</button><input class="form-range" name="amps_brake_max" type="range" step="500" min="0" max="65000" value="0" onchange="OnSliderChange('amps_brake_max_value', this.value)" oninput="OnSliderChange('amps_brake_max_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('amps_brake_max', 'amps_brake_max_value')">+</button></span>
-                        </div>
-                </div>
-                <div class="card-text">
-                    This value defines the maximum current that is substracted, when the brake lever is fully pulled. Decreasing the value will result in the brake being less effective overall! Only decrease if you think the brake is way too strong.<br/>
-                    <span style="color: red;">&#9888;&nbsp;Affects SAFETY! Modify at your own risk!!</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hardware Section -->
-    <div class="section-container">
-        <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#hardware-section">
-            <i class="fas fa-hammer"></i>Hardware
-            <i class="fas fa-chevron-down section-chevron"></i>
-        </h5>
-        <div class="collapse" id="hardware-section">
-    <div class="card-group text-center">
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" name="wheelsize_cb" type="checkbox" onchange="CheckForm('wheelsize', this);">
-                <label class="form-check-label"><b>Wheel Size</b></label>
-            </div>
-
-            <div class="card-body">
-                <div class="card-title">
-                    <div class="row">
-                        <div class="col">Inches</div>
-                        <div class="col" id="wheelsize_value"></div>
-                    </div>
-                    <div class="row">
-                        <span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('wheelsize', 'wheelsize_value')">-</button><input class="form-range" name="wheelsize" type="range" step="0.1" min="0" max="30" value="8.5" onchange="OnSliderChange('wheelsize_value', this.value)" oninput="OnSliderChange('wheelsize_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('wheelsize', 'wheelsize_value')">+</button></span>
-                    </div>
-                </div>
-                <div class="card-text">
-                    When upgrading / changing the stock wheels, this parameter has to be adjusted to match the GPS speed and torque.
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-group text-center">
-		<div class="card">
-            <div class="card-header">
-                <input class="form-check-input" type="checkbox" name="baud">
-                <label class="form-check-label"><b>Baudrate</b></label>
-            </div>
-            <div class="card-body">
-                <div class="card-title">
-                    Change baudrate from 115200 to 76800.
-                </div>
-                <div class="card-text">
-                    Required for OpenSource BMS.
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <input class="form-check-input" name="volt_cb" type="checkbox" onchange="CheckForm('volt', this);">
-                <label class="form-check-label"><b>Voltage Limit</b></label>
-            </div>
-
-            <div class="card-body">
-                <div class="card-title">
-                    <div class="row">
-                        <div class="col">V</div>
-                        <div class="col" id="volt_value"></div>
-                    </div>
-                    <div class="row">
-                        <span class="input-group-text"><button type="button" class="btn btn-secondary" onclick="SliderDown('volt', 'volt_value')">-</button><input class="form-range" name="volt" type="range" step="0.01" min="10" max="100" value="43.01" onchange="OnSliderChange('volt_value', this.value)" oninput="OnSliderChange('volt_value', this.value)" disabled><button type="button" class="btn btn-primary" onclick="SliderUp('volt', 'volt_value')">+</button></span>
-                    </div>
-                </div>
-                <div class="card-text">
-                    Change when connecting a custom battery with a different voltage.
-                </div>
-            </div>
-        </div>
-    </div>
-        </div>
-    </div>
-
-    <br/>
-    <!-- Patch Section -->
-    <div class="section-container">
-        <h5 class="text-center">
-            <i class="fas fa-cogs"></i>Build
-        </h5>
-        <div class="mb-4 text-center">
+            <p class="lead">
+                Configure your own NextGen firmware (NGFW) by adjusting the options below.
+                <span class="badge bg-success">V3.0 & V3.1 Supported!</span>
+            </p>
+            <p class="lead">
+                <span class="badge bg-danger">New:</span>
+                G2, F2-Series and 4Pro-Series support! More patches and features added continuously.
+            </p>
             <p class="text">
-                <span style="color: red;">&#9888;&nbsp;Warning:&nbsp;</span>
-                Before proceeding, please check all entered values! Select a valid file and press one of the buttons:
+                Important notes: This information service is provided free of charge and for personal use only.
+                Commercial use, selling or distributing files, services or parts related to this service is prohibited
+                (see <a href="/disclaimer">disclaimer</a>). If you decide to use any of the information provided here
+                for your project, please add a reference to this site! The source code is available at <a
+                    href="https://github.com/scooterteam/ngfw-patcher">GitHub</a>.
             </p>
-            <ul class="text-muted mb-3 list-unstyled">
-                <li><strong>Bin</strong> - applies the selected patches on the uploaded file and returns the patched file</li>
-                <li><strong>Zip</strong> - further packs the patched file for flashing</li>
-                <li><strong>Doc</strong> - generates a full documentation of all selected mods</li>
-            </ul>
+            <p class="text r">
+                <span class="text-danger">Never apply a patch more than once, as it may damage your
+                    controller.</span><br>
+                <span class="text-muted">Notice that firmwares tagged as 'Compat' may not already include a Model/Key
+                    Check Patch.</span>
+            </p>
         </div>
-        <div class="d-flex flex-column align-items-center gap-3">
-            <div class="input-group" style="max-width: 400px;">
-                <span class="input-group-text"><i class="fas fa-file-upload"></i></span>
-                <input type="file" accept=".bin,.zip,.bin.enc" class="form-control" name="filename">
-    </div>
-            <div class="btn-group gap-2">
-                <button type="submit" name="patch" value="Bin" class="btn btn-primary">
-                    <i class="fas fa-file-code me-2"></i>Bin
-                </button>
-                <button type="submit" name="patch" value=".bin.enc" class="btn btn-primary">
-                    <i class="fas fa-lock me-2"></i>.bin.enc
-                </button>
-                <button type="submit" name="patch" value="Zip" class="btn btn-primary">
-                    <i class="fas fa-file-archive me-2"></i>Zip
-                </button>
-                <button type="submit" name="patch" value="Doc" class="btn btn-primary">
-                    <i class="fas fa-file-alt me-2"></i>Doc
-                </button>
-        </div>
-        </div>
-    </div>
-    </form>
 
-    <hr>
-    <div class="credits-section">
-    <div class="row">
-            <div class="col-12">
-                <h4><i class="fas fa-heart me-2"></i>Credits</h4>
-                <div class="credits-content">
-                    <p>
-                        <i class="fas fa-users me-2"></i>Thanks to the modders at 
-                        <a href="https://scooterhacking.org" target="_blank">ScooterHacking.org</a>. 
-                        Many patches are an adaptation of the mods available at 
-                        <a href="https://pro2.cfw.sh/" target="_blank">pro2.cfw.sh</a>.
+        <hr>
+        <form action="/cfw" method="POST" enctype="multipart/form-data">
+            <div class="preset-section">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <h5>
+                            <i class="fas fa-sliders-h"></i>
+                            Load Preset
+                        </h5>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="preset-select">
+                            <select class="form-select" id="devselect" name="device" onchange="ChangeDevice()">
+                                <optgroup label="Xiaomi">
+                                    <option value="1s">1S</option>
+                                    <option value="pro2">Pro2</option>
+                                    <option value="lite">Lite/Essential</option>
+                                    <option value="mi3">Mi3</option>
+                                </optgroup>
+                                <optgroup label="4 Pro Series">
+                                    <option value="4pro">4Pro</option>
+                                    <option value="4plus">4ProPlus</option>
+                                    <option value="4max">4ProMax</option>
+                                </optgroup>
+                                <optgroup label="F/G/Z Series">
+                                    <option value="f2">F2</option>
+                                    <option value="f2plus">F2Plus</option>
+                                    <option value="f2pro">F2Pro</option>
+                                    <option value="g2">G2</option>
+                                    <option value="zt3pro">ZT3 Pro</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+            <div class="section-container">
+                <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#fw-section">
+                    <i class="fas fa-code"></i>FW
+                    <i class="fas fa-chevron-down section-chevron"></i>
+                </h5>
+                <div class="collapse" id="fw-section">
+                    <div class="card-group text-center">
+                        <div id="disable_key_check" class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="rml">
+                                <label class="form-check-label"><b>Disable Model Check</b></label><!-- Xiaomi -->
+                                <label class="form-check-label"><b>Disable Key Check</b></label><!-- Ninebot -->
+                            </div>
+                            <div class="card-body"><!-- Xiaomi -->
+                                Some DRVs restrict flashing of DRVs to the ones belonging to the model. This mod
+                                disables checks and allows flashing all DRVs (for example: DRV016 to DRV247/SHFW).<br />
+                            </div>
+                            <div class="card-body"><!-- Ninebot -->
+                                Disables the check if the scooter's current encryption key matches the key in the new
+                                firmware. It can be useful when you want to change your current key to a different one.
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="dmn">
+                                <label class="form-check-label"><b>Disable Motor NTC (AT32)</b></label>
+                            </div>
+                            <div class="card-body">
+                                Disables error 41 when the motor temperature sensor is returning zero / low values. This
+                                allows running the firmware on models without a motor NTC.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="embed_enc_key_cb"
+                                    onchange="CheckForm('embed_enc_key', this);">
+                                <label class="form-check-label"><b>Embed Encryption Key</b></label>
+                            </div>
+                            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                                <div class="card-text">Custom encryption key to be embedded into the firmware. Future
+                                    updates will have to be encrypted with this key. Changing key from custom key in
+                                    installation requires a Model/Key Check Patch.</div>
+                                <div class="py-2"></div>
+                                <input class="form-control text-center" type="text" name="embed_enc_key">
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="custom_enc_key_cb"
+                                    onchange="CheckForm('custom_enc_key', this);">
+                                <label class="form-check-label"><b>Custom Encryption Key</b></label>
+                            </div>
+                            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                                <div class="card-text">Custom encryption key the firmware will be encrypted with. This
+                                    key has to match the key embedded in the current installation.</div>
+                                <div class="py-2"></div>
+                                <input class="form-control text-center" type="text" name="custom_enc_key">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center d-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="embed_rand_code_cb"
+                                    onchange="CheckForm('embed_rand_code', this);">
+                                <label class="form-check-label"><b>Embed Rand Code</b></label>
+                            </div>
+                            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                                <div class="card-text">Custom rand code to be embedded into the firmware.</div>
+                                <div class="py-2"></div>
+                                <input class="form-control text-center" type="text" name="embed_rand_code">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+            <div class="section-container">
+                <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#esc-section">
+                    <i class="fas fa-microchip"></i>ESC
+                    <i class="fas fa-chevron-down section-chevron"></i>
+                </h5>
+                <div class="collapse" id="esc-section">
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" name="dpc" type="checkbox">
+                                <label class="form-check-label"><b>Direct Power Control (DPC)</b></label>
+                            </div>
+                            <div class="card-body">
+                                Activate/Deactivate DPC via register. Direct Power Control (DPC) ignores speed
+                                limits.<br />
+                                Note on 4Pro & F2/G2: This option permanently enables DPC.
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="remove_autobrake">
+                                <label class="form-check-label"><b>Remove Speed Check</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-text">
+                                    Remove automatic braking and beep when above a certain speed.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="remove_charging_mode">
+                                <label class="form-check-label"><b>Remove Charging Mode</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-text">
+                                    Ignore input from charging line.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" name="remove_kers" type="checkbox"
+                                    onclick="ChangeForm('kml', false)">
+                                <label class="form-check-label"><b>No KERS</b></label>
+                            </div>
+                            <div class="card-body">
+                                Deactivates Kinetic Energy Recovery System (KERS).
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" name="motor_start_speed_cb" type="checkbox"
+                                    onchange="CheckForm('motor_start_speed', this);">
+                                <label class="form-check-label"><b>Motor Start Speed</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div class="row">
+                                        <div class="col">km/h</div>
+                                        <div class="col" id="mss_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('motor_start_speed', 'mss_value')">-</button><input
+                                                class="form-range" name="motor_start_speed" type="range" step="0.5"
+                                                min="0" max="10" value="5"
+                                                onchange="OnSliderChange('mss_value', this.value)"
+                                                oninput="OnSliderChange('mss_value', this.value)" disabled><button
+                                                type="button" class="btn btn-primary"
+                                                onclick="SliderUp('motor_start_speed', 'mss_value')">+</button></span>
+                                    </div>
+                                </div>
+                                <div class="card-text">
+                                    Minimum required speed before the motor will start.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" name="crc_cb" type="checkbox"
+                                    onchange="CheckForm('crc', this);">
+                                <label class="form-check-label"><b>CRC</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div class="row">
+                                        <div class="col" id="crc_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('crc', 'crc_value')">-</button><input
+                                                class="form-range" name="crc" type="range" step="1" min="0" max="2000"
+                                                value="300" onchange="OnSliderChange('crc_value', this.value)"
+                                                oninput="OnSliderChange('crc_value', this.value)" disabled><button
+                                                type="button" class="btn btn-primary"
+                                                onclick="SliderUp('crc', 'crc_value')">+</button></span>
+                                    </div>
+                                </div>
+                                <div class="card-text">
+                                    Current raising coefficient, defines the increments of current increase.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" name="shutdown_time_cb" type="checkbox"
+                                    onchange="CheckForm('shutdown_time', this);">
+                                <label class="form-check-label"><b>Shutdown Time</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div>Seconds</div>
+                                    <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                            onclick="SliderDown('shutdown_time', 'shutdown_value')">-</button><input
+                                            class="form-range" name="shutdown_time" type="range" step="0.5" min="1"
+                                            max="20" value="3" onchange="OnSliderChange('shutdown_value', this.value)"
+                                            oninput="OnSliderChange('shutdown_value', this.value)" disabled><button
+                                            type="button" class="btn btn-primary"
+                                            onclick="SliderUp('shutdown_time', 'shutdown_value')">+</button></span>
+                                    <div id="shutdown_value">3</div>
+                                </div>
+                                <div class="card-text">
+                                    Time you have to press the power button until the device turns off.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" name="cc_delay_cb" type="checkbox"
+                                    onchange="CheckForm('cc_delay', this);">
+                                <label class="form-check-label"><b>Cruise Control Delay</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div>Seconds</div>
+                                    <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                            onclick="SliderDown('cc_delay', 'cc_delay_val')">-</button><input
+                                            class="form-range" name="cc_delay" type="range" step="1" min="1" max="9"
+                                            value="5" onchange="OnSliderChange('cc_delay_val', this.value)"
+                                            oninput="OnSliderChange('cc_delay_val', this.value)" disabled><button
+                                            type="button" class="btn btn-primary"
+                                            onclick="SliderUp('cc_delay', 'cc_delay_val')">+</button></span>
+                                    <div id="cc_delay_val">5</div>
+                                </div>
+                                <div class="card-text">
+                                    Time needed for cruise control to kick in.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group">
+                        <div class="card text-center m-1">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="kml"
+                                    onchange="CheckForm('kml_l0', this);CheckForm('kml_l1', this);CheckForm('kml_l2', this);"
+                                    onclick="ChangeForm('remove_kers', false);">
+                                <label class="form-check-label"><b>Custom KERS</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <span class="input-group-text">Weak:&nbsp;<button type="button"
+                                            class="btn btn-secondary"
+                                            onclick="SliderDown('kml_l0', 'kml_l0_value')">-</button><input
+                                            class="form-range" name="kml_l0" type="range" step="1" min="0" max="30"
+                                            value="6" onchange="OnSliderChange('kml_l0_value', this.value)"
+                                            oninput="OnSliderChange('kml_l0_value', this.value)" disabled><button
+                                            type="button" class="btn btn-primary"
+                                            onclick="SliderUp('kml_l0', 'kml_l0_value')">+</button></span>
+                                    <div id="kml_l0_value">6</div>
+                                    <span class="input-group-text">Middle:&nbsp;<button type="button"
+                                            class="btn btn-secondary"
+                                            onclick="SliderDown('kml_l1', 'kml_l1_value')">-</button><input
+                                            class="form-range" name="kml_l1" type="range" step="1" min="0" max="30"
+                                            value="12" onchange="OnSliderChange('kml_l1_value', this.value)"
+                                            oninput="OnSliderChange('kml_l1_value', this.value)" disabled><button
+                                            type="button" class="btn btn-primary"
+                                            onclick="SliderUp('kml_l1', 'kml_l1_value')">+</button></span>
+                                    <div id="kml_l1_value">12</div>
+                                    <span class="input-group-text">Strong:&nbsp;<button type="button"
+                                            class="btn btn-secondary"
+                                            onclick="SliderDown('kml_l2', 'kml_l2_value')">-</button><input
+                                            class="form-range" name="kml_l2" type="range" step="1" min="0" max="30"
+                                            value="20" onchange="OnSliderChange('kml_l2_value', this.value)"
+                                            oninput="OnSliderChange('kml_l2_value', this.value)" disabled><button
+                                            type="button" class="btn btn-primary"
+                                            onclick="SliderUp('kml_l2', 'kml_l2_value')">+</button></span>
+                                    <div id="kml_l2_value">20</div>
+                                </div>
+
+                                <div class="card-text">
+                                    Set the three KERS multiplier levels individually. Set value to "0" to turn KERS
+                                    off. <b>Note:</b> Overrides <b>No KERS</b> mod!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+            <div class="section-container">
+                <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#special-section">
+                    <i class="fas fa-magic"></i>Special
+                    <i class="fas fa-chevron-down section-chevron"></i>
+                </h5>
+                <div class="collapse" id="special-section">
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="eco_mode"
+                                    onclick="Ped_To_Eco(this)">
+                                <label class="form-check-label"><b>Pedestrian -> Eco Mode</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    Replace pedestrian mode with Eco mode. This gives you another driveable mode with
+                                    slightly reduced consumption at 15 km/h.
+                                </div>
+                                <div class="card-text">
+                                    This is a convenience function! The same effect can be achieved by setting
+                                    nominal+maximum current and speed limit higher for the pedestrian mode
+                                    manually.<br />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="pnb">
+                                <label class="form-check-label"><b>Pedestrian No-Blink</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    Remove flashing / blinking taillight in pedestrian mode.
+                                </div>
+                                <div class="card-text">
+                                    Makes the taillight togglable like in every other mode. Can be combined with static
+                                    brakelight to remove blinking on brake (when region-free).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="blm"
+                                    onchange="CheckForm('blm_alm', this);">
+                                <label class="form-check-label"><b>Static Brakelight</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    Replaces the blinking backlight by a static backlight on braking (improved version).
+                                    When "Auto-Light" is additionally selected the default backlight brightness is
+                                    lowered.
+                                </div>
+                                <div class="card-text">
+                                    <input class="form-check-input" type="checkbox" name="blm_alm">
+                                    <label class="form-check-label"><b>Auto-Light</b></label><br />
+                                    This mod gives the same effect as rear brakelights on a car when braking.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="bts">
+                                <label class="form-check-label"><b>Button Swap</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    Swaps the function of single and double button tap.
+                                </div>
+                                <div class="card-text">
+                                    A single button tap switches mode, two button taps turn light on/off.<br />
+                                    Useful if you want to be able to switch modes more easily.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="ammeter">
+                                <label class="form-check-label"><b>Current-Meter</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    Replaces the battery percentage shown on dashboard by actual current consumption.
+                                    No bars means no consumption, full bars means 25 amps consumption.<br />
+                                </div>
+                                <div class="card-text">
+                                    With this mod the battery percentage can only be read out using an app.<br />
+                                    <span style="color: red;">&#9888;&nbsp;When charging the dashboard will show a
+                                        constant "0", but charging works normally.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+            <div class="section-container">
+                <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#limits-section">
+                    <i class="fas fa-tachometer-alt"></i>Limits
+                    <i class="fas fa-chevron-down section-chevron"></i>
+                </h5>
+                <div class="collapse" id="limits-section">
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="rfm">
+                                <label class="form-check-label"><b>Region-Free</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    Remove regional restrictions normally imposed by the serial number, such as 20 km/h
+                                    speed limit, missing cruise control and backlight-on feature. If changing speed
+                                    limits doesn't have any effect, you might want to enable this mod!<br />
+                                    Effectively converts a european device to an international device.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="sl_cb"
+                                    onchange="CheckForm('sl_sport', this);CheckForm('sl_drive', this); CheckForm('sl_ped', this);"
+                                    onclick="ChangeForm('eco_mode', false);">
+                                <label class="form-check-label"><b>Speed Limit</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Sport Mode, km/h</label></div>
+                                        <div class="col" id="sl_sport_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('sl_sport', 'sl_sport_value')">-</button><input
+                                                class="form-range" name="sl_sport" type="range" step="1" min="0"
+                                                max="65" value="0"
+                                                onchange="OnSliderChange('sl_sport_value', this.value)"
+                                                oninput="OnSliderChange('sl_sport_value', this.value)" disabled><button
+                                                type="button" class="btn btn-primary"
+                                                onclick="SliderUp('sl_sport', 'sl_sport_value')">+</button></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Drive Mode, km/h</label></div>
+                                        <div class="col" id="sl_drive_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('sl_drive', 'sl_drive_value')">-</button><input
+                                                class="form-range" name="sl_drive" type="range" step="1" min="0"
+                                                max="65" value="0"
+                                                onchange="OnSliderChange('sl_drive_value', this.value)"
+                                                oninput="OnSliderChange('sl_drive_value', this.value)" disabled><button
+                                                type="button" class="btn btn-primary"
+                                                onclick="SliderUp('sl_drive', 'sl_drive_value')">+</button></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Eco / Pedestrian Mode,
+                                                km/h</label></div>
+                                        <div class="col" id="sl_ped_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('sl_ped', 'sl_ped_value')">-</button><input
+                                                class="form-range" name="sl_ped" type="range" step="1" min="0" max="65"
+                                                value="0" onchange="OnSliderChange('sl_ped_value', this.value)"
+                                                oninput="OnSliderChange('sl_ped_value', this.value)" disabled><button
+                                                type="button" class="btn btn-primary"
+                                                onclick="SliderUp('sl_ped', 'sl_ped_value')">+</button></span>
+                                    </div>
+                                </div>
+                                <div class="card-text">
+                                    These values define the maximum speed of each mode. <b>Note:</b> DPC mode ignores
+                                    speed limits.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="amps_cb"
+                                    onchange="CheckForm('amps_sport', this);CheckForm('amps_drive', this); CheckForm('amps_ped', this);"
+                                    onclick="ChangeForm('eco_mode', false);">
+                                <label class="form-check-label"><b>Nominal Current</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Sport Mode, mA</label></div>
+                                        <div class="col" id="amps_sport_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('amps_sport', 'amps_sport_value')">-</button><input
+                                                class="form-range" name="amps_sport" type="range" step="500" min="0"
+                                                max="45000" value="0"
+                                                onchange="OnSliderChange('amps_sport_value', this.value)"
+                                                oninput="OnSliderChange('amps_sport_value', this.value)"
+                                                disabled><button type="button" class="btn btn-primary"
+                                                onclick="SliderUp('amps_sport', 'amps_sport_value')">+</button></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Drive Mode, mA</label></div>
+                                        <div class="col" id="amps_drive_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('amps_drive', 'amps_drive_value')">-</button><input
+                                                class="form-range" name="amps_drive" type="range" step="500" min="0"
+                                                max="45000" value="0"
+                                                onchange="OnSliderChange('amps_drive_value', this.value)"
+                                                oninput="OnSliderChange('amps_drive_value', this.value)"
+                                                disabled><button type="button" class="btn btn-primary"
+                                                onclick="SliderUp('amps_drive', 'amps_drive_value')">+</button></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Eco / Pedestrian Mode,
+                                                mA</label></div>
+                                        <div class="col" id="amps_ped_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('amps_ped', 'amps_ped_value')">-</button><input
+                                                class="form-range" name="amps_ped" type="range" step="500" min="0"
+                                                max="45000" value="0"
+                                                onchange="OnSliderChange('amps_ped_value', this.value)"
+                                                oninput="OnSliderChange('amps_ped_value', this.value)" disabled><button
+                                                type="button" class="btn btn-primary"
+                                                onclick="SliderUp('amps_ped', 'amps_ped_value')">+</button></span>
+                                    </div>
+                                </div>
+                                <div class="card-text">
+                                    These values define the maximum current that is applied when the throttle lever is
+                                    fully pressed (for each mode). Increasing the value will give a better acceleration
+                                    and up-hill performance, at the cost of battery life.<br />
+                                    <span style="color: red;">&#9888;&nbsp;Affects battery life! Too high currents can
+                                        toast your cables or controller!!</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="amps_max_cb"
+                                    onchange="CheckForm('amps_sport_max', this);CheckForm('amps_drive_max', this); CheckForm('amps_ped_max', this);"
+                                    onclick="ChangeForm('eco_mode', false);">
+                                <label class="form-check-label"><b>Maximum Current</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Sport Mode, max. mA</label>
+                                        </div>
+                                        <div class="col" id="amps_sport_max_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('amps_sport_max', 'amps_sport_max_value')">-</button><input
+                                                class="form-range" name="amps_sport_max" type="range" step="500" min="0"
+                                                max="90000" value="0"
+                                                onchange="OnSliderChange('amps_sport_max_value', this.value)"
+                                                oninput="OnSliderChange('amps_sport_max_value', this.value)"
+                                                disabled><button type="button" class="btn btn-primary"
+                                                onclick="SliderUp('amps_sport_max', 'amps_sport_max_value')">+</button></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Drive Mode, max. mA</label>
+                                        </div>
+                                        <div class="col" id="amps_drive_max_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('amps_drive_max', 'amps_drive_max_value')">-</button><input
+                                                class="form-range" name="amps_drive_max" type="range" step="500" min="0"
+                                                max="90000" value="0"
+                                                onchange="OnSliderChange('amps_drive_max_value', this.value)"
+                                                oninput="OnSliderChange('amps_drive_max_value', this.value)"
+                                                disabled><button type="button" class="btn btn-primary"
+                                                onclick="SliderUp('amps_drive_max', 'amps_drive_max_value')">+</button></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Eco / Pedestrian Mode, max.
+                                                mA</label></div>
+                                        <div class="col" id="amps_ped_max_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('amps_ped_max', 'amps_ped_max_value')">-</button><input
+                                                class="form-range" name="amps_ped_max" type="range" step="500" min="0"
+                                                max="90000" value="0"
+                                                onchange="OnSliderChange('amps_ped_max_value', this.value)"
+                                                oninput="OnSliderChange('amps_ped_max_value', this.value)"
+                                                disabled><button type="button" class="btn btn-primary"
+                                                onclick="SliderUp('amps_ped_max', 'amps_ped_max_value')">+</button></span>
+                                    </div>
+                                </div>
+                                <div class="card-text">
+                                    These values the define the hard upper current limit of each mode. Upon reaching
+                                    these values, the current is fully cut - the motor can't draw currents higher than
+                                    this.<br />
+                                    <span style="color: red;">&#9888;&nbsp;Affects battery life! Too high currents can
+                                        toast your cables or controller!!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="amps_brake_min_cb"
+                                    onchange="CheckForm('amps_brake_min', this);">
+                                <label class="form-check-label"><b>Minimum Brake Current</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Brake, min. mA</label></div>
+                                        <div class="col" id="amps_brake_min_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('amps_brake_min', 'amps_brake_min_value')">-</button><input
+                                                class="form-range" name="amps_brake_min" type="range" step="500" min="0"
+                                                max="65000" value="0"
+                                                onchange="OnSliderChange('amps_brake_min_value', this.value)"
+                                                oninput="OnSliderChange('amps_brake_min_value', this.value)"
+                                                disabled><button type="button" class="btn btn-primary"
+                                                onclick="SliderUp('amps_brake_min', 'amps_brake_min_value')">+</button></span>
+                                    </div>
+                                </div>
+                                <div class="card-text">
+                                    This value defines the brake current that is always added whenever you touch the
+                                    brake. Gives you control over the lower end of brake. When lowering this value, you
+                                    should increase the <b>Maximum Brake Current</b> by the same amount!<br />
+                                    <span style="color: red;">&#9888;&nbsp;Affects SAFETY! Modify at your own
+                                        risk!!</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="amps_brake_max_cb"
+                                    onchange="CheckForm('amps_brake_max', this);">
+                                <label class="form-check-label"><b>Maximum Brake Current</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div class="row">
+                                        <div class="col"><label class="form-check-label">Brake, max. mA</label></div>
+                                        <div class="col" id="amps_brake_max_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('amps_brake_max', 'amps_brake_max_value')">-</button><input
+                                                class="form-range" name="amps_brake_max" type="range" step="500" min="0"
+                                                max="65000" value="0"
+                                                onchange="OnSliderChange('amps_brake_max_value', this.value)"
+                                                oninput="OnSliderChange('amps_brake_max_value', this.value)"
+                                                disabled><button type="button" class="btn btn-primary"
+                                                onclick="SliderUp('amps_brake_max', 'amps_brake_max_value')">+</button></span>
+                                    </div>
+                                </div>
+                                <div class="card-text">
+                                    This value defines the maximum current that is substracted, when the brake lever is
+                                    fully pulled. Decreasing the value will result in the brake being less effective
+                                    overall! Only decrease if you think the brake is way too strong.<br />
+                                    <span style="color: red;">&#9888;&nbsp;Affects SAFETY! Modify at your own
+                                        risk!!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="us_region_spoof">
+                                <label class="form-check-label"><b>US Region Spoof</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    Remove regional restrictions normally imposed by the serial number, such as the 20
+                                    km/h
+                                    speed limit, missing cruise control, and the backlight-on feature. If changing speed
+                                    limits
+                                    has no effect, you might want to enable this mod!<br />
+                                    This effectively converts a European device into a US device.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="allow_sn_change">
+                                <label class="form-check-label"><b>Allow SN Change</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    Allows changing the serial number.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hardware Section -->
+            <div class="section-container">
+                <h5 class="section-header" data-bs-toggle="collapse" data-bs-target="#hardware-section">
+                    <i class="fas fa-hammer"></i>Hardware
+                    <i class="fas fa-chevron-down section-chevron"></i>
+                </h5>
+                <div class="collapse" id="hardware-section">
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" name="wheelsize_cb" type="checkbox"
+                                    onchange="CheckForm('wheelsize', this);">
+                                <label class="form-check-label"><b>Wheel Size</b></label>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div class="row">
+                                        <div class="col">Inches</div>
+                                        <div class="col" id="wheelsize_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('wheelsize', 'wheelsize_value')">-</button><input
+                                                class="form-range" name="wheelsize" type="range" step="0.1" min="0"
+                                                max="30" value="8.5"
+                                                onchange="OnSliderChange('wheelsize_value', this.value)"
+                                                oninput="OnSliderChange('wheelsize_value', this.value)" disabled><button
+                                                type="button" class="btn btn-primary"
+                                                onclick="SliderUp('wheelsize', 'wheelsize_value')">+</button></span>
+                                    </div>
+                                </div>
+                                <div class="card-text">
+                                    When upgrading / changing the stock wheels, this parameter has to be adjusted to
+                                    match the GPS speed and torque.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="baud">
+                                <label class="form-check-label"><b>Baudrate</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">
+                                    Change baudrate from 115200 to 76800.
+                                </div>
+                                <div class="card-text">
+                                    Required for OpenSource BMS.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" name="volt_cb" type="checkbox"
+                                    onchange="CheckForm('volt', this);">
+                                <label class="form-check-label"><b>Voltage Limit</b></label>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="card-title">
+                                    <div class="row">
+                                        <div class="col">V</div>
+                                        <div class="col" id="volt_value"></div>
+                                    </div>
+                                    <div class="row">
+                                        <span class="input-group-text"><button type="button" class="btn btn-secondary"
+                                                onclick="SliderDown('volt', 'volt_value')">-</button><input
+                                                class="form-range" name="volt" type="range" step="0.01" min="10"
+                                                max="100" value="43.01"
+                                                onchange="OnSliderChange('volt_value', this.value)"
+                                                oninput="OnSliderChange('volt_value', this.value)" disabled><button
+                                                type="button" class="btn btn-primary"
+                                                onclick="SliderUp('volt', 'volt_value')">+</button></span>
+                                    </div>
+                                </div>
+                                <div class="card-text">
+                                    Change when connecting a custom battery with a different voltage.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+            <!-- Patch Section -->
+            <div class="section-container">
+                <h5 class="text-center">
+                    <i class="fas fa-cogs"></i>Build
+                </h5>
+                <div class="mb-4 text-center">
+                    <p class="text">
+                        <span style="color: red;">&#9888;&nbsp;Warning:&nbsp;</span>
+                        Before proceeding, please check all entered values! Select a valid file and press one of the
+                        buttons:
                     </p>
-                    <p>
-                        <i class="fas fa-globe me-2"></i>Thanks to the German and Spanish communities for additional testing.
-                    </p>
-                    <p>
-                        <i class="fas fa-code me-2"></i>Thanks to Encryptize for contributing 4 Pro support.
-                    </p>
-                    <p>
-                        <i class="fas fa-star me-2"></i>Thanks to WallyCZ and Encryptize for the awesome collab!
-                    </p>
-                    <p>
-                        <i class="fas fa-code-branch me-2"></i>Based on BotoX 
-                        <a href="https://github.com/BotoX/xiaomi-m365-firmware-patcher" target="_blank">firmware patcher</a>.
-            </p>
-	    </div>
+                    <ul class="text-muted mb-3 list-unstyled">
+                        <li><strong>Bin</strong> - applies the selected patches on the uploaded file and returns the
+                            patched file</li>
+                        <li><strong>Zip</strong> - further packs the patched file for flashing</li>
+                        <li><strong>Doc</strong> - generates a full documentation of all selected mods</li>
+                    </ul>
+                </div>
+                <div class="d-flex flex-column align-items-center gap-3">
+                    <div class="input-group" style="max-width: 400px;">
+                        <span class="input-group-text"><i class="fas fa-file-upload"></i></span>
+                        <input type="file" accept=".bin,.zip,.bin.enc" class="form-control" name="filename">
+                    </div>
+                    <div class="btn-group gap-2">
+                        <button type="submit" name="patch" value="Bin" class="btn btn-primary">
+                            <i class="fas fa-file-code me-2"></i>Bin
+                        </button>
+                        <button type="submit" name="patch" value=".bin.enc" class="btn btn-primary">
+                            <i class="fas fa-lock me-2"></i>.bin.enc
+                        </button>
+                        <button type="submit" name="patch" value="Zip" class="btn btn-primary">
+                            <i class="fas fa-file-archive me-2"></i>Zip
+                        </button>
+                        <button type="submit" name="patch" value="Doc" class="btn btn-primary">
+                            <i class="fas fa-file-alt me-2"></i>Doc
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <hr>
+        <div class="credits-section">
+            <div class="row">
+                <div class="col-12">
+                    <h4><i class="fas fa-heart me-2"></i>Credits</h4>
+                    <div class="credits-content">
+                        <p>
+                            <i class="fas fa-users me-2"></i>Thanks to the modders at
+                            <a href="https://scooterhacking.org" target="_blank">ScooterHacking.org</a>.
+                            Many patches are an adaptation of the mods available at
+                            <a href="https://pro2.cfw.sh/" target="_blank">pro2.cfw.sh</a>.
+                        </p>
+                        <p>
+                            <i class="fas fa-globe me-2"></i>Thanks to the German and Spanish communities for additional
+                            testing.
+                        </p>
+                        <p>
+                            <i class="fas fa-code me-2"></i>Thanks to Encryptize for contributing 4 Pro support.
+                        </p>
+                        <p>
+                            <i class="fas fa-star me-2"></i>Thanks to WallyCZ and Encryptize for the awesome collab!
+                        </p>
+                        <p>
+                            <i class="fas fa-code-branch me-2"></i>Based on BotoX
+                            <a href="https://github.com/BotoX/xiaomi-m365-firmware-patcher" target="_blank">firmware
+                                patcher</a>.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Move scripts to bottom -->
-<script src="{{ url_for('static', filename='ngfw.js') }}"></script>
-<script src="{{ url_for('static', filename='popper.min.js') }}"></script>
-<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <!-- Move scripts to bottom -->
+    <script src="{{ url_for('static', filename='ngfw.js') }}"></script>
+    <script src="{{ url_for('static', filename='popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
 
 </body>
 <footer class="text-center text-muted mt-5 py-3">
@@ -748,7 +992,8 @@
             <div class="col-md-4">
                 <h6>Latest Update</h6>
                 <p>{{ gitinfo['date'] }}: {{ gitinfo['summary'] }}<br>
-                <small>[{{ gitinfo['sha'] }}]</small></p>
+                    <small>[{{ gitinfo['sha'] }}]</small>
+                </p>
             </div>
             <div class="col-md-4">
                 <h6>Links</h6>
@@ -758,4 +1003,5 @@
         </div>
     </div>
 </footer>
+
 </html>

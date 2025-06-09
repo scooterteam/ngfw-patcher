@@ -20,6 +20,7 @@
 from base_patcher import BasePatcher
 from util import FindPattern, SignatureException
 
+
 class NbPatcher(BasePatcher):
     def __init__(self, data, model):
         super().__init__(data, model)
@@ -73,6 +74,27 @@ class NbPatcher(BasePatcher):
 
         return self.ret('embed_enc_key', key_offset, pre, enc_key)
 
+    def us_region_spoof(self):
+        '''
+        OP: trueToastedCode
+        Description: Spoof region always to be US
+        '''
+        if self.model == "zt3pro":
+            sig_from = [ 0x01, 0x22, 0x31, 0x2c, None, None, 0x44, 0x78, 0x4b, 0x2c, None, None, 0x84, 0x78, 0x31, 0x2c ]
+            ofs_from = FindPattern(self.data, sig_from) + 0x10
+
+            sig_to = [ 0x03, 0x20, 0xc8, 0x70, 0x4a, 0x70 ]
+            ofs_to = FindPattern(self.data, sig_to, start=ofs_from + 2)
+
+            patch_slice = slice(ofs_from, ofs_from + 2)
+            pre = self.data[patch_slice]
+            post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
+            self.data[patch_slice] = post
+
+            return self.ret("region_free", ofs_from, pre, post)
+
+        return []
+    
     def disable_motor_ntc(self):
         '''
         OP: Turbojeet
@@ -128,15 +150,21 @@ class NbPatcher(BasePatcher):
 
     def allow_sn_change(self):
         '''
-        OP: WallyCZ
+        OP: WallyCZ, trueToastedCode
         Description: Allows changing the serial number
         '''
-        sig = self.asm('ldrb.w r0,[r8,#0x4a]')
-        ofs = FindPattern(self.data, sig)
-        pre = self.data[ofs:ofs+4]
-        post = self.asm('mov.w r0, #0x1')
+        if self.model == "zt3pro":
+            sig = self.asm('ldrb.w r1,[r1,#0x24]')
+            ofs = FindPattern(self.data, sig)
+            pre = self.data[ofs:ofs+4]
+            post = self.asm('mov.w r1, #0x1')
+        else:
+            sig = self.asm('ldrb.w r0,[r8,#0x4a]')
+            ofs = FindPattern(self.data, sig)
+            pre = self.data[ofs:ofs+4]
+            post = self.asm('mov.w r0, #0x1')
+            
         self.data[ofs:ofs+4] = post
-
         return self.ret("allow_sn_change", ofs, pre, post)
 
     def region_free(self):
@@ -173,6 +201,17 @@ class NbPatcher(BasePatcher):
                 post = self.asm("movs r0, #0x6")
                 self.data[ofs_dst:ofs_dst+2] = post
                 res += self.ret("region_free_1", ofs_dst, pre, post)
+        elif self.model == "zt3pro":
+            sig = [0xC0, 0x78, 0x45, 0x28]
+            ofs = FindPattern(self.data, sig)
+
+            sig = [0x03, 0x20, 0xC8, 0x70, 0x4A, 0x70]
+            ofs_dst = FindPattern(self.data, sig, start=ofs)
+
+            pre = self.data[ofs:ofs+2]
+            post = self.asm(f"b {ofs_dst-ofs}")
+            self.data[ofs:ofs+2] = post
+            res += self.ret("region_free", ofs, pre, post)
         else:
             sig = self.asm('cmp r0, #0x4e')
             ofs = FindPattern(self.data, sig, start=0x8000) + len(sig)

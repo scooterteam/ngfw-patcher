@@ -18,9 +18,11 @@
 #
 
 from enum import Enum
-import keystone
+
 import capstone
+import keystone
 from util import FindPattern, SignatureException
+
 
 class PatchGroup(Enum):
     GENERAL = "general"
@@ -93,6 +95,12 @@ class BasePatcher():
            description="Embed custom encryption key.",
            group=PatchGroup.GENERAL)
     def embed_enc_key(self, enc_key_str):
+        raise NotImplementedError()
+
+    @patch(label="embed_enc_key",
+           description="Spoof region always to be US.",
+           group=PatchGroup.GENERAL)
+    def us_region_spoof(self):
         raise NotImplementedError()
 
     @patch(label="dpc",

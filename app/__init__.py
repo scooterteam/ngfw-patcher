@@ -20,18 +20,18 @@
 # Optional MYSQL and 'flask_mysql' module for click counter
 #####
 
-import flask
-import traceback
-import os
 import inspect
 import io
+import os
 import pathlib
+import traceback
+from datetime import datetime
+
+import flask
 from mi_patcher import MiPatcher
 from nb_patcher import NbPatcher
 from util import SignatureException
 from zippy import Zippy
-from datetime import datetime
-
 
 pwd = pathlib.Path(__file__).parent.parent.resolve()
 
@@ -39,8 +39,8 @@ app = flask.Flask(__name__)
 
 mysql = None
 try:
-    from flask_mysqldb import MySQL
     from conf import config
+    from flask_mysqldb import MySQL
 
     app.config.update(config)
 
@@ -163,7 +163,7 @@ def patch(data):
     device = flask.request.form.get('device')
     if device in ["1s", "pro2", "lite", "mi3", "4pro"]:
         patcher = MiPatcher(data, device)
-    elif device in ["f2pro", "f2plus", "f2", "g2", "4plus", "4max"]:
+    elif device in ["f2pro", "f2plus", "f2", "g2", "4plus", "4max", "zt3pro"]:
         patcher = NbPatcher(data, device)
         is_nb = True
 
@@ -176,6 +176,14 @@ def patch(data):
     embed_enc_key = embed_enc_key.strip() if embed_enc_key is not None else None
     if embed_enc_key:
         res.append(('EMBED_ENC_KEY', patcher.embed_enc_key(embed_enc_key)))
+
+    us_region_spoof = flask.request.form.get('us_region_spoof', None)
+    if us_region_spoof is not None:
+        res.append(("US Region Spoof", patcher.us_region_spoof()))
+
+    allow_sn_change = flask.request.form.get('allow_sn_change', None)
+    if allow_sn_change is not None:
+        res.append(("Allow SN Change", patcher.allow_sn_change()))
 
     dpc = flask.request.form.get('dpc', None)
     if dpc is not None:

@@ -31,6 +31,8 @@ const forms = {
     "EMBED_ENC_KEY": "embed_enc_key",
     "CUSTOM_ENC_KEY": "custom_enc_key",
     "EMBED_RAND_CODE": "embed_rand_code",
+    "US_REGION_SPOOF": "us_region_spoof",
+    "ALLOW_SN_CHANGE": "allow_sn_change",
     "BLM": "blm",
     "BLM_ALM": "blm_alm",
     "BAUD": "baud",
@@ -99,7 +101,7 @@ function CheckForm(name, cb) {
             return;
         }
         o.disabled = !cb.checked;
-        
+
         // Update parent card styling if this is a checkbox
         if (cb.type === 'checkbox') {
             const card = cb.closest('.card');
@@ -122,13 +124,13 @@ function ChangeForm(name, value, patch) {
     } else {
         o.value = value;
     }
-    if(o.onchange) { o.onchange(); }
+    if (o.onchange) { o.onchange(); }
 
     if (typeof patch === 'boolean') {
         const cb = GetPatchCheckBox(name);
         if (cb) {
             cb.checked = patch;
-            if(cb.onchange) { cb.onchange(); }
+            if (cb.onchange) { cb.onchange(); }
             // Update card styling for patch checkbox
             const card = cb.closest('.card');
             if (card) {
@@ -138,7 +140,7 @@ function ChangeForm(name, value, patch) {
     }
 }
 
-function OnLoad(){
+function OnLoad() {
     const warning = new bootstrap.Modal(document.getElementById('disclaimer'));
     warning.show();
     ChangeDevice();
@@ -149,7 +151,7 @@ function UdateVisibilityForDevice(dev) {
     const dkcElTitleXiaomi = document.querySelector("#disable_key_check .form-check-label:nth-last-of-type(2)");
     const dkcElInfoNinebot = document.querySelector("#disable_key_check .card-body:nth-last-of-type(1)");
     const dkcElInfoXiaomi = document.querySelector("#disable_key_check .card-body:nth-last-of-type(2)");
-    
+
     switch (dev) {
         case "pro2":
         case "1s":
@@ -167,6 +169,7 @@ function UdateVisibilityForDevice(dev) {
         case "f2plus":
         case "f2":
         case "g2":
+        case "zt3pro":
             dkcElTitleNinebot.style.display = 'inline';
             dkcElTitleXiaomi.style.display = 'none';
             dkcElInfoNinebot.style.display = 'block';
@@ -177,12 +180,12 @@ function UdateVisibilityForDevice(dev) {
     }
 }
 
-function ChangeDevice(){
+function ChangeDevice() {
     Preset_Default();
     const dev = document.getElementById("devselect").value;
     UdateVisibilityForDevice(dev);
 
-    switch(dev) {
+    switch (dev) {
         case "pro2": Preset_Pro2(); break;
         case "1s": Preset_1S(); break;
         case "lite": Preset_Lite(); break;
@@ -194,6 +197,7 @@ function ChangeDevice(){
         case "f2plus": Preset_F2Plus(); break;
         case "f2": Preset_F2(); break;
         case "g2": Preset_G2(); break;
+        case "zt3pro": Preset_ZT3Pro(); break;
     }
 }
 
@@ -204,8 +208,10 @@ function Preset_1S() {
     ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
     ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
     GetForm(forms.DMN).disabled = true;
-    GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
-    GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
 }
 
 function Preset_Pro2() {
@@ -215,8 +221,10 @@ function Preset_Pro2() {
     ChangeForm(forms.AMPS_DRIVE_MAX, "32000", false);
     ChangeForm(forms.AMPS_BRAKE_MAX, "52000", false);
     GetForm(forms.DMN).disabled = true;
-    GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
-    GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
 }
 
 function Preset_Lite() {
@@ -229,8 +237,10 @@ function Preset_Lite() {
     ChangeForm(forms.AMPS_BRAKE_MAX, "22000", false);
     GetForm(forms.RFM).disabled = true;
     GetForm(forms.DMN).disabled = true;
-    GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
-    GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
 }
 
 function Preset_Mi3() {
@@ -240,8 +250,10 @@ function Preset_Mi3() {
     ChangeForm(forms.AMPS_DRIVE_MAX, "28000", false);
     ChangeForm(forms.AMPS_BRAKE_MAX, "47000", false);
     GetForm(forms.DMN).disabled = true;
-    GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
-    GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
 }
 
 function Preset_4Pro() {
@@ -255,8 +267,10 @@ function Preset_4Pro() {
     GetForm(forms.RML).disabled = true;
     GetForm(forms.BTS).disabled = true;
     GetForm(forms.BLM_ALM).disabled = true;
-    GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = true;
-    GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = true;
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
 }
 
 function Preset_4ProPlus() {
@@ -266,13 +280,15 @@ function Preset_4ProPlus() {
 function Preset_4ProMax() {
     DisableAll(true);
     ChangeForm(forms.VOLT, "60.01", false);
-    GetForm(forms.CC_DELAY+"_cb").disabled = false;
+    GetForm(forms.CC_DELAY + "_cb").disabled = false;
     GetForm(forms.RFM).disabled = false;
     GetForm(forms.SL).disabled = false;
     GetForm(forms.REMOVE_AUTOBRAKE).disabled = false;
     GetForm(forms.REMOVE_CHARGING_MODE).disabled = false;
-    GetForm(forms.VOLT+"_cb").disabled = false;
-    GetForm(forms.CUSTOM_ENC_KEY+"_cb").disabled = false;
+    GetForm(forms.VOLT + "_cb").disabled = false;
+    GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
 }
 
 function Preset_F2Pro() {
@@ -305,15 +321,16 @@ function Preset_F2Base() {
 
     GetForm(forms.BTS).disabled = true;
     GetForm(forms.BLM).disabled = true;
-    GetForm(forms.MOTOR_START_SPEED+"_cb").disabled = true;
-    GetForm(forms.CRC+"_cb").disabled = true;
-    GetForm(forms.WHEELSIZE+"_cb").disabled = true;
-    GetForm(forms.SHUTDOWN_TIME+"_cb").disabled = true;
-    GetForm(forms.AMPS_BRAKE_MIN+"_cb").disabled = true;
-    GetForm(forms.AMPS_BRAKE_MAX+"_cb").disabled = true;
+    GetForm(forms.MOTOR_START_SPEED + "_cb").disabled = true;
+    GetForm(forms.CRC + "_cb").disabled = true;
+    GetForm(forms.WHEELSIZE + "_cb").disabled = true;
+    GetForm(forms.SHUTDOWN_TIME + "_cb").disabled = true;
+    GetForm(forms.AMPS_BRAKE_MIN + "_cb").disabled = true;
+    GetForm(forms.AMPS_BRAKE_MAX + "_cb").disabled = true;
     GetForm(forms.AMMETER).disabled = true;
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_G2() {
@@ -331,47 +348,57 @@ function Preset_G2() {
 
     GetForm(forms.BTS).disabled = true;
     GetForm(forms.BLM).disabled = true;
-    GetForm(forms.MOTOR_START_SPEED+"_cb").disabled = true;
-    GetForm(forms.CRC+"_cb").disabled = true;
-    GetForm(forms.CC_DELAY+"_cb").disabled = true;
+    GetForm(forms.MOTOR_START_SPEED + "_cb").disabled = true;
+    GetForm(forms.CRC + "_cb").disabled = true;
+    GetForm(forms.CC_DELAY + "_cb").disabled = true;
     GetForm(forms.KML).disabled = true;
-    GetForm(forms.WHEELSIZE+"_cb").disabled = true;
-    GetForm(forms.SHUTDOWN_TIME+"_cb").disabled = true;
-    GetForm(forms.AMPS_BRAKE_MIN+"_cb").disabled = true;
-    GetForm(forms.AMPS_BRAKE_MAX+"_cb").disabled = true;
+    GetForm(forms.WHEELSIZE + "_cb").disabled = true;
+    GetForm(forms.SHUTDOWN_TIME + "_cb").disabled = true;
+    GetForm(forms.AMPS_BRAKE_MIN + "_cb").disabled = true;
+    GetForm(forms.AMPS_BRAKE_MAX + "_cb").disabled = true;
     GetForm(forms.AMMETER).disabled = true;
     GetForm(forms.BAUD).disabled = true;
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
+}
+
+function Preset_ZT3Pro() {
+    DisableAll(true);
+    GetForm(forms.RFM).disabled = false;
+    GetForm(forms.US_REGION_SPOOF).disabled = false;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = false;
 }
 
 function DisableAll(disable) {
-    GetForm(forms.EMBED_ENC_KEY+"_cb").disabled = disable;
-    GetForm(forms.CUSTOM_ENC_KEY+"_cb").disabled = disable;
-    GetForm(forms.EMBED_RAND_CODE+"_cb").disabled = disable;
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = disable;
+    GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = disable;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = disable;
     GetForm(forms.DMN).disabled = disable;
     GetForm(forms.RML).disabled = disable;
     GetForm(forms.BTS).disabled = disable;
     GetForm(forms.BLM).disabled = disable;
     GetForm(forms.DPC).disabled = disable;
-    GetForm(forms.MOTOR_START_SPEED+"_cb").disabled = disable;
+    GetForm(forms.MOTOR_START_SPEED + "_cb").disabled = disable;
     GetForm(forms.REMOVE_AUTOBRAKE).disabled = disable;
     GetForm(forms.REMOVE_CHARGING_MODE).disabled = disable;
     GetForm(forms.REMOVE_KERS).disabled = disable;
-    GetForm(forms.CC_DELAY+"_cb").disabled = disable;
-    GetForm(forms.CRC+"_cb").disabled = disable;
-    GetForm(forms.WHEELSIZE+"_cb").disabled = disable;
-    GetForm(forms.SHUTDOWN_TIME+"_cb").disabled = disable;
+    GetForm(forms.CC_DELAY + "_cb").disabled = disable;
+    GetForm(forms.CRC + "_cb").disabled = disable;
+    GetForm(forms.WHEELSIZE + "_cb").disabled = disable;
+    GetForm(forms.SHUTDOWN_TIME + "_cb").disabled = disable;
     GetForm(forms.AMPS).disabled = disable;
     GetForm(forms.AMPS_MAX).disabled = disable;
-    GetForm(forms.AMPS_BRAKE_MIN+"_cb").disabled = disable;
-    GetForm(forms.AMPS_BRAKE_MAX+"_cb").disabled = disable;
+    GetForm(forms.AMPS_BRAKE_MIN + "_cb").disabled = disable;
+    GetForm(forms.AMPS_BRAKE_MAX + "_cb").disabled = disable;
     GetForm(forms.AMMETER).disabled = disable;
-    GetForm(forms.VOLT+"_cb").disabled = disable;
+    GetForm(forms.VOLT + "_cb").disabled = disable;
     GetForm(forms.BAUD).disabled = disable;
     GetForm(forms.ECO_MODE).disabled = disable;
     GetForm(forms.PNB).disabled = disable;
     GetForm(forms.KML).disabled = disable;
+    GetForm(forms.US_REGION_SPOOF).disabled = disable;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = disable;
 }
 
 function Ped_To_Eco(cb) {
@@ -413,13 +440,15 @@ function Preset_Default() {
     ChangeForm(forms.AMPS_PED, "7000", false);
     ChangeForm(forms.AMPS_PED_MAX, "8000", false);
     ChangeForm(forms.AMPS_BRAKE_MIN, "8000", false);
-    
+
     ChangeForm(forms.AMMETER, false);
     ChangeForm(forms.RFM, false);
     ChangeForm(forms.RML, false);
     ChangeForm(forms.EMBED_ENC_KEY, "FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0", false);
     ChangeForm(forms.CUSTOM_ENC_KEY, "FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0", false);
     ChangeForm(forms.EMBED_RAND_CODE, "cfw.sh", false);
+    ChangeForm(forms.US_REGION_SPOOF, false);
+    ChangeForm(forms.ALLOW_SN_CHANGE, false);
     ChangeForm(forms.BLM, false);
     ChangeForm(forms.BLM_ALM, false);
 
@@ -449,7 +478,7 @@ for (const query of queries) {
 }
 
 // Replace the existing DOMContentLoaded event listener with this updated version
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Add click handlers to all card headers
     document.querySelectorAll('.card-header').forEach(header => {
         // Find the checkbox in this card
@@ -460,16 +489,16 @@ document.addEventListener('DOMContentLoaded', function() {
         header.addEventListener('click', (e) => {
             // Don't toggle if clicking the checkbox directly or if the checkbox is disabled
             if (e.target === checkbox || checkbox.disabled) return;
-            
+
             // Don't toggle if clicking on another input within the header
             if (e.target.tagName === 'INPUT') return;
 
             // Toggle the checkbox
             checkbox.checked = !checkbox.checked;
-            
+
             // Trigger the change event for the checkbox
             checkbox.dispatchEvent(new Event('change'));
-            
+
             // Toggle the checked class on the parent card
             header.closest('.card').classList.toggle('checked', checkbox.checked);
         });
@@ -485,22 +514,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add collapse event handlers
     document.querySelectorAll('.section-header').forEach(header => {
-        header.addEventListener('click', function() {
+        header.addEventListener('click', function () {
             // Toggle the chevron rotation
             const chevron = this.querySelector('.section-chevron');
-            chevron.style.transform = this.getAttribute('aria-expanded') === 'true' 
-                ? 'rotate(180deg)' 
+            chevron.style.transform = this.getAttribute('aria-expanded') === 'true'
+                ? 'rotate(180deg)'
                 : 'rotate(0deg)';
         });
     });
 
     // Store collapse states in localStorage
     document.querySelectorAll('.collapse').forEach(collapse => {
-        collapse.addEventListener('show.bs.collapse', function() {
+        collapse.addEventListener('show.bs.collapse', function () {
             localStorage.setItem(this.id, 'expanded');
         });
-        
-        collapse.addEventListener('hide.bs.collapse', function() {
+
+        collapse.addEventListener('hide.bs.collapse', function () {
             localStorage.setItem(this.id, 'collapsed');
         });
 
@@ -510,4 +539,4 @@ document.addEventListener('DOMContentLoaded', function() {
             new bootstrap.Collapse(collapse, { show: true });
         }
     });
-}); 
+});
