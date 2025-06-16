@@ -41,7 +41,11 @@ class NbPatcher(BasePatcher):
         raw_scooter_enc_id = self.data[enc_data_offset : enc_data_offset + 16]
         null_pos = raw_scooter_enc_id.find(b'\x00')
         scooter_enc_id = raw_scooter_enc_id[:null_pos] if null_pos != -1 else raw_scooter_enc_id
-        if scooter_enc_id not in [b'NineBotScooter', b'SCOOTER_VCU_xxU2']:
+        if scooter_enc_id not in [
+            b'NineBotScooter',
+            b'SCOOTER_VCU_xxU2',
+            b'SCOOTER_VCU_xxG3'
+        ]:
             raise SignatureException('Encryption data not found')
 
         # patch rand code against custom one
@@ -68,7 +72,11 @@ class NbPatcher(BasePatcher):
         raw_scooter_enc_id = self.data[enc_data_offset : enc_data_offset + 16]
         null_pos = raw_scooter_enc_id.find(b'\x00')
         scooter_enc_id = raw_scooter_enc_id[:null_pos] if null_pos != -1 else raw_scooter_enc_id
-        if scooter_enc_id not in [b'NineBotScooter', b'SCOOTER_VCU_xxU2']:
+        if scooter_enc_id not in [
+            b'NineBotScooter',
+            b'SCOOTER_VCU_xxU2',
+            b'SCOOTER_VCU_xxG3'
+        ]:
             raise SignatureException('Encryption data not found')
 
         # patch first occurance of current against custom key
@@ -91,6 +99,40 @@ class NbPatcher(BasePatcher):
 
             sig_to = [ 0x03, 0x20, 0xc8, 0x70, 0x4a, 0x70 ]
             ofs_to = FindPattern(self.data, sig_to, start=ofs_from + 2)
+
+            patch_slice = slice(ofs_from, ofs_from + 2)
+            pre = self.data[patch_slice]
+            post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
+            self.data[patch_slice] = post
+
+            return self.ret("us_region_spoof", ofs_from, pre, post)
+        
+        elif self.model == "g3":
+            sig_from = [
+                0x03, 0x78, 0x00, 0x22, None, 0x49, 0x31, 0x2b, None, 0xd1, 0x43, 0x78, 0x43, 0x2b, None, 0xd1,
+                0x83, 0x78, 0x47, 0x2b, None, 0xd0
+            ]
+            ofs_from = FindPattern(self.data, sig_from) + 0x14
+
+            sig_switch_case_to = [ 0xc0, 0x78, 0x41, 0x38, 0x09, 0x28, None, 0xd2, 0xdf, 0xe8, 0x00, 0xf0 ]
+            ofs_switch_case_to = FindPattern(self.data, sig_switch_case_to) + 0xc
+            
+            # default
+            # case 0: 65 = A
+            # case 1: 66 = B
+            # case 2: 67 = C
+            # case 3: 68 = D
+            # case 4: 69 = E
+            # case 5: 70 = F
+            # case 6: 71 = G
+            # case 7: 72 = H
+            # case 8: 73 = I
+
+            switch_case_offsets = self.data[ofs_switch_case_to : ofs_switch_case_to + 0x9]
+
+            # 'C' for case USA
+            target_case = ord('C') - ord('A')
+            ofs_to = ofs_switch_case_to + switch_case_offsets[target_case] * 2
 
             patch_slice = slice(ofs_from, ofs_from + 2)
             pre = self.data[patch_slice]
@@ -164,6 +206,11 @@ class NbPatcher(BasePatcher):
             ofs = FindPattern(self.data, sig)
             pre = self.data[ofs:ofs+4]
             post = self.asm('mov.w r1, #0x1')
+        elif self.model == "g3":
+            sig = self.asm('ldrb.w r3,[r8,#0x24]')
+            ofs = FindPattern(self.data, sig)
+            pre = self.data[ofs:ofs+4]
+            post = self.asm('mov.w r3, #0x1')
         else:
             sig = self.asm('ldrb.w r0,[r8,#0x4a]')
             ofs = FindPattern(self.data, sig)

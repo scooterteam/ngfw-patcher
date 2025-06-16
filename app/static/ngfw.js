@@ -170,6 +170,7 @@ function UdateVisibilityForDevice(dev) {
         case "f2":
         case "g2":
         case "zt3pro":
+        case "g3":
             dkcElTitleNinebot.style.display = 'inline';
             dkcElTitleXiaomi.style.display = 'none';
             dkcElInfoNinebot.style.display = 'block';
@@ -198,6 +199,7 @@ function ChangeDevice() {
         case "f2": Preset_F2(); break;
         case "g2": Preset_G2(); break;
         case "zt3pro": Preset_ZT3Pro(); break;
+        case "g3": Preset_G3(); break;
     }
 }
 
@@ -374,15 +376,27 @@ function Preset_ZT3Pro() {
     GetForm(forms.ALLOW_SN_CHANGE).disabled = false;
 }
 
+function Preset_G3() {
+    DisableAll(true);
+    GetForm(forms.RML).disabled = false;
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = false;
+    GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
+    GetForm(forms.US_REGION_SPOOF).disabled = false;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = false;
+}
+
 function DisableAll(disable) {
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = disable;
     GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = disable;
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = disable;
     GetForm(forms.DMN).disabled = disable;
     GetForm(forms.RML).disabled = disable;
+    GetForm(forms.RFM).disabled = disable;
     GetForm(forms.BTS).disabled = disable;
     GetForm(forms.BLM).disabled = disable;
     GetForm(forms.DPC).disabled = disable;
+    GetForm(forms.SL).disabled = disable;
     GetForm(forms.MOTOR_START_SPEED + "_cb").disabled = disable;
     GetForm(forms.REMOVE_AUTOBRAKE).disabled = disable;
     GetForm(forms.REMOVE_CHARGING_MODE).disabled = disable;
