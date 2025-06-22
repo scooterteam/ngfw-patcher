@@ -44,7 +44,8 @@ class NbPatcher(BasePatcher):
         if scooter_enc_id not in [
             b'NineBotScooter',
             b'SCOOTER_VCU_xxU2',
-            b'SCOOTER_VCU_xxG3'
+            b'SCOOTER_VCU_xxG3',
+            b'SCOOTER_VCU_xxF3'
         ]:
             raise SignatureException('Encryption data not found')
 
@@ -75,7 +76,8 @@ class NbPatcher(BasePatcher):
         if scooter_enc_id not in [
             b'NineBotScooter',
             b'SCOOTER_VCU_xxU2',
-            b'SCOOTER_VCU_xxG3'
+            b'SCOOTER_VCU_xxG3',
+            b'SCOOTER_VCU_xxF3'
         ]:
             raise SignatureException('Encryption data not found')
 
@@ -93,7 +95,39 @@ class NbPatcher(BasePatcher):
         OP: trueToastedCode
         Description: Spoof region always to be US
         '''
-        if self.model == "zt3pro":
+        if self.model == "g2":
+            sig_from = [
+                0x18, 0x78, 0xFF, 0x21, 0x03, 0x24, 0x30, 0x28, None, 0xD1, 0x5A, 0x78, 0x31, 0x2A, None, 0xD1, 
+                0x9A, 0x78, 0x47, 0x2A, None, 0xD0
+            ]
+            ofs_from = FindPattern(self.data, sig_from) + 0x14
+
+            sig_switch_case_to = [ 0xD8, 0x78, 0x54, 0x38, 0x07, 0x28, None, 0xD2, 0xDF, 0xE8, 0x00, 0xF0 ]
+            ofs_switch_case_to = FindPattern(self.data, sig_switch_case_to) + 0xc
+
+            # default
+            # case 0: 84 = T
+            # case 1: 85 = U
+            # case 2: 86 = V
+            # case 3: 87 = W
+            # case 4: 88 = X
+            # case 5: 89 = Y
+            # case 6: 90 = Z
+
+            switch_case_offsets = self.data[ofs_switch_case_to : ofs_switch_case_to + 0x9]
+
+            # 'X' for case USA
+            target_case = ord('X') - ord('T')
+            ofs_to = ofs_switch_case_to + switch_case_offsets[target_case] * 2
+
+            patch_slice = slice(ofs_from, ofs_from + 2)
+            pre = self.data[patch_slice]
+            post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
+            self.data[patch_slice] = post
+
+            return self.ret("us_region_spoof", ofs_from, pre, post)
+
+        elif self.model == "zt3pro":
             sig_from = [ 0x01, 0x22, 0x31, 0x2c, None, None, 0x44, 0x78, 0x4b, 0x2c, None, None, 0x84, 0x78, 0x31, 0x2c ]
             ofs_from = FindPattern(self.data, sig_from) + 0x10
 
@@ -177,6 +211,8 @@ class NbPatcher(BasePatcher):
         while (offset := find_pattern_wrap(self.data, cut_src_sig, start=offset + len(cut_src_sig))) != -1:
             patch_offset = offset + 6
 
+            print(hex(patch_offset))
+
             # assuming this is the correct offset, find the destination
             try:
                 dst_offset = FindPattern(self.data, dst_sig, start=patch_offset + 2) + 1
@@ -185,12 +221,13 @@ class NbPatcher(BasePatcher):
 
             # make sure the skip key check specific branch is not already in place
             pre = self.data[patch_offset : patch_offset + 2]
+            pre_test_alternative = self.data[patch_offset + 2 : patch_offset + 4]
             post = self.asm(f'b #{dst_offset - patch_offset}')
             if pre == post:
                 raise SignatureException(f'Skip key check already seems to exist at {hex(patch_offset)}')
 
             # patch if it's the correct patch location
-            if pre == b'\x00\x20':
+            if pre == b'\x00\x20' or pre_test_alternative == b'\x00\x20':
                 self.data[patch_offset : patch_offset + 2] = post
                 return self.ret("skip_key_check", patch_offset, pre, post)
 

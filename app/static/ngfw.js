@@ -171,6 +171,7 @@ function UdateVisibilityForDevice(dev) {
         case "g2":
         case "zt3pro":
         case "g3":
+        case "f3pro":
             dkcElTitleNinebot.style.display = 'inline';
             dkcElTitleXiaomi.style.display = 'none';
             dkcElInfoNinebot.style.display = 'block';
@@ -200,6 +201,7 @@ function ChangeDevice() {
         case "g2": Preset_G2(); break;
         case "zt3pro": Preset_ZT3Pro(); break;
         case "g3": Preset_G3(); break;
+        case "f3pro": Preset_F3Pro(); break;
     }
 }
 
@@ -362,7 +364,6 @@ function Preset_G2() {
     GetForm(forms.BAUD).disabled = true;
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
-    GetForm(forms.US_REGION_SPOOF).disabled = true;
 }
 
 function Preset_ZT3Pro() {
@@ -384,6 +385,14 @@ function Preset_G3() {
     GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
     GetForm(forms.US_REGION_SPOOF).disabled = false;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = false;
+}
+
+function Preset_F3Pro() {
+    DisableAll(true);
+    GetForm(forms.RML).disabled = false;
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = false;
+    GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
 }
 
 function DisableAll(disable) {
