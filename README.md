@@ -1,7 +1,7 @@
 # NextGen firmware patcher
 Little firmware modifications to make your day  nicer.
 
-I wrote this patcher based on BotoX [m365 firmware patcher](https://github.com/BotoX/xiaomi-m365-firmware-patcher).
+This patcher is based on BotoX' [m365 firmware patcher](https://github.com/BotoX/xiaomi-m365-firmware-patcher).
 
 New mods / contributions highly welcome, simply open PR and present your mod!
 The mod will then be integrated into the NGFW patcher.
@@ -22,7 +22,6 @@ The mod will then be integrated into the NGFW patcher.
 * DRV1415 (Experimental)
 
 ## Available Mods
-### BoToX/SH
 * DPC (register)
 * No Charging Fix
 * Remove Speed Check
@@ -33,9 +32,6 @@ The mod will then be integrated into the NGFW patcher.
 * Speed Limits
 * Phase Currents
 * Brake Currents
-* (Lever resolution (gas/brake))
-
-### Turbojeet
 * Shutdown Time
 * No KERS (improved)
 * Current Meter
