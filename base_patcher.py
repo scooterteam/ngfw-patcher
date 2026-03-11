@@ -21,7 +21,7 @@ from enum import Enum
 
 import capstone
 import keystone
-from util import FindPattern, SignatureException
+from util import FindPattern, FindPatternGracef, SignatureException
 
 
 class PatchGroup(Enum):
@@ -85,16 +85,34 @@ class BasePatcher():
     def ret(self, descr, ofs, pre, post):
         return [(descr, hex(ofs), pre.hex(), post.hex())]
 
+    @patch(label="version_spoof",
+           description="Spoof firmware version.",
+           group=PatchGroup.GENERAL)
+    def version_spoof(self, version):
+        raise NotImplementedError()
+    
     @patch(label="embed_rand_code",
            description="Embed custom rand code.",
            group=PatchGroup.GENERAL)
     def embed_rand_code(self, rand_code_str):
         raise NotImplementedError()
 
+    @patch(label="embed_speed_table",
+           description="Embed custom speed table.",
+           group=PatchGroup.GENERAL)
+    def embed_speed_table(self, speed_table_data):
+        raise NotImplementedError()
+
     @patch(label="embed_enc_key",
            description="Embed custom encryption key.",
            group=PatchGroup.GENERAL)
     def embed_enc_key(self, enc_key_str):
+        raise NotImplementedError()
+
+    @patch(label="disable_custom_enc_key",
+           description="Disable Custom Enc Key.",
+           group=PatchGroup.GENERAL)
+    def disable_custom_enc_key(self):
         raise NotImplementedError()
 
     @patch(label="embed_enc_key",

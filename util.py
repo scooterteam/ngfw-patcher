@@ -60,6 +60,13 @@ def FindPattern(data, signature, mask=None, start=None, maxit=None):
     raise SignatureException('Pattern not found!')
 
 
+def FindPatternGracef(*args, **kwargs):
+    try:
+        return FindPattern(*args, **kwargs)
+    except SignatureException:
+        return -1
+
+
 def NearestConst(x):
     n_dist, n_sign = 0xffff, 1
     for s in range(32-8):

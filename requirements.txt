@@ -1,4 +1,4 @@
 keystone-engine
 flask
 capstone
-fasttea
+git+https://github.com/scooterhacking/NinebotTEA.git

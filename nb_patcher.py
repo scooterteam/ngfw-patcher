@@ -17,13 +17,76 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+import re
 from base_patcher import BasePatcher
-from util import FindPattern, SignatureException
+from util import FindPattern, FindPatternGracef, SignatureException
+from nb_version_util import NbVersionUtil
 
 
 class NbPatcher(BasePatcher):
     def __init__(self, data, model):
         super().__init__(data, model)
+
+    orig_version_assignments = {
+        "g2": f'MOV.W R0, #{hex(NbVersionUtil.string_to_version("1.7.6"))}',
+        "g3_vcu": f'MOVW R0, #{hex(NbVersionUtil.string_to_version("1.5.15"))}',
+        "g3_mcu": f'MOV.W R0, #{hex(NbVersionUtil.string_to_version("1.5.0"))}'
+    }
+    
+    def version_spoof(self, version):
+        '''
+        OP: trueToastedCode
+        Description: Spoof firmware version
+        '''
+        if (orig_version_assignment := self.orig_version_assignments.get(self.model)) is None:
+            raise ValueError(f'Version Spoofing for target {self.model} is not supported')
+        
+        match = re.search(r'\b(mov\.?w)\s+(R\d+)\b', orig_version_assignment, re.IGNORECASE)
+        assert match is not None
+        mov_instr = match.group(1)
+        register = match.group(2)
+
+        orig_version_assignment = self.asm(orig_version_assignment)
+        start = 0
+        all_ofs = []
+        while (ofs := FindPatternGracef(self.data, orig_version_assignment, start=start)) != -1:
+            all_ofs.append(ofs)
+            start = ofs + len(orig_version_assignment)
+
+        result = []
+
+        for ofs in all_ofs:
+            patch_sl = slice(ofs, ofs + 4)
+            pre = self.data[patch_sl]
+            new_version_assignment = self.asm(f'{mov_instr} {register}, #{hex(NbVersionUtil.string_to_version(version))}')
+            assert len(new_version_assignment) == 4
+            self.data[patch_sl] = new_version_assignment
+            result += self.ret('version_spoof', ofs, pre, new_version_assignment)
+        
+        return result
+    
+    def embed_speed_table(self, speed_table_data):
+        '''
+        OP: trueToastedCode
+        Description: Embed custom speed table
+        '''
+        if self.model in [ "g3_vcu" ]:
+            assert len(speed_table_data) == 6
+            for profile in speed_table_data:
+                assert len(profile) == 9
+            default_row_0_vals = [16, 35, 13, 25, 55, 17, 32, 100, 35]
+            default_row_0 = b''.join(x.to_bytes(4, 'little') for x in default_row_0_vals)
+            offs = FindPattern(self.data, default_row_0)
+            custom_speed_config = b''.join(
+                val.to_bytes(4, 'little')
+                    for profile in speed_table_data
+                for val in profile
+            )
+            assert len(custom_speed_config) == 4 * 9 * 6
+            patch_sl = slice(offs, offs+216)
+            pre = self.data[patch_sl]
+            self.data[patch_sl] = custom_speed_config
+            return self.ret('speed_config', offs, pre, custom_speed_config)
 
     def embed_rand_code(self, rand_code_str):
         '''
@@ -45,7 +108,8 @@ class NbPatcher(BasePatcher):
             b'NineBotScooter',
             b'SCOOTER_VCU_xxU2',
             b'SCOOTER_VCU_xxG3',
-            b'SCOOTER_VCU_xxF3'
+            b'SCOOTER_VCU_xxF3',
+            b'SCOOTER_MCU_0001'
         ]:
             raise SignatureException('Encryption data not found')
 
@@ -77,7 +141,8 @@ class NbPatcher(BasePatcher):
             b'NineBotScooter',
             b'SCOOTER_VCU_xxU2',
             b'SCOOTER_VCU_xxG3',
-            b'SCOOTER_VCU_xxF3'
+            b'SCOOTER_VCU_xxF3',
+            b'SCOOTER_MCU_0001'
         ]:
             raise SignatureException('Encryption data not found')
 
@@ -90,6 +155,49 @@ class NbPatcher(BasePatcher):
 
         return self.ret('embed_enc_key', key_offset, pre, enc_key)
 
+    def disable_custom_enc_key(self):
+        '''
+        OP: trueToastedCode
+        Description: Disable custom enc key
+        '''
+        def find_pattern_wrap(*args, **kwargs):
+            try:
+                return FindPattern(*args, **kwargs)
+            except SignatureException:
+                return -1
+            
+        result = []
+
+        if self.model in [ "g2", "g3_vcu", "g3_mcu", "gt3_vcu" ]:
+            sig = bytes.fromhex('FE 80 1C B2 D1 EF 41 A6 A4 17 31 F5 A0 68 24 F0')
+            offset = -len(sig)
+            last_offset = None
+            while (offset := find_pattern_wrap(self.data, sig, start=offset + len(sig))) != -1:
+                last_offset = offset
+            if last_offset is None:
+                raise SignatureException('Default key not found')
+            dst_addr = last_offset + 0x8001000
+            assert dst_addr % 4 == 0
+            post = dst_addr.to_bytes(4, byteorder='little')
+
+            pre = (0x8001420).to_bytes(4, byteorder='little')
+            offset = -len(pre)
+            i = 0
+            while (offset := find_pattern_wrap(self.data, pre, start=offset + len(pre))) != -1:
+                self.data[offset : offset + 4] = post
+                result += self.ret(f'change_enc_key_reference_{i}', offset, pre, post)
+                i += 1
+        
+            if not result:
+                raise SignatureException('References to default key not found')
+            
+            return result
+
+        if not result:
+            raise SignatureException('disable custom enc key could not be applied')
+
+        return result
+    
     def us_region_spoof(self):
         '''
         OP: trueToastedCode
@@ -127,7 +235,7 @@ class NbPatcher(BasePatcher):
 
             return self.ret("us_region_spoof", ofs_from, pre, post)
 
-        elif self.model == "zt3pro":
+        elif self.model == "zt3pro_vcu":
             sig_from = [ 0x01, 0x22, 0x31, 0x2c, None, None, 0x44, 0x78, 0x4b, 0x2c, None, None, 0x84, 0x78, 0x31, 0x2c ]
             ofs_from = FindPattern(self.data, sig_from) + 0x10
 
@@ -141,39 +249,26 @@ class NbPatcher(BasePatcher):
 
             return self.ret("us_region_spoof", ofs_from, pre, post)
         
-        elif self.model == "g3":
-            sig_from = [
-                0x03, 0x78, 0x00, 0x22, None, 0x49, 0x31, 0x2b, None, 0xd1, 0x43, 0x78, 0x43, 0x2b, None, 0xd1,
-                0x83, 0x78, 0x47, 0x2b, None, 0xd0
+        elif self.model == "g3_vcu":
+            from_pattern = [
+                ord('1'), None,
+                None, 0xd1,
+                None, 0x78,
+                ord('C'), None,
+                None, 0xd1,
+                None, 0x78,
+                ord('G'), None,
+                None, 0xd1,
+                None, 0x78,
+                ord('A'), None
             ]
-            ofs_from = FindPattern(self.data, sig_from) + 0x14
-
-            sig_switch_case_to = [ 0xc0, 0x78, 0x41, 0x38, 0x09, 0x28, None, 0xd2, 0xdf, 0xe8, 0x00, 0xf0 ]
-            ofs_switch_case_to = FindPattern(self.data, sig_switch_case_to) + 0xc
-            
-            # default
-            # case 0: 65 = A
-            # case 1: 66 = B
-            # case 2: 67 = C
-            # case 3: 68 = D
-            # case 4: 69 = E
-            # case 5: 70 = F
-            # case 6: 71 = G
-            # case 7: 72 = H
-            # case 8: 73 = I
-
-            switch_case_offsets = self.data[ofs_switch_case_to : ofs_switch_case_to + 0x9]
-
-            # 'C' for case USA
-            target_case = ord('C') - ord('A')
-            ofs_to = ofs_switch_case_to + switch_case_offsets[target_case] * 2
-
-            patch_slice = slice(ofs_from, ofs_from + 2)
-            pre = self.data[patch_slice]
-            post = self.asm(f'beq {hex(ofs_to - ofs_from)}')
-            self.data[patch_slice] = post
-
-            return self.ret("us_region_spoof", ofs_from, pre, post)
+            from_ofs = FindPattern(self.data, from_pattern)
+            to_ofs = FindPattern(self.data, [0x00, 0x20, None, 0xe0], start=from_ofs + len(from_pattern))
+            patch_sl = slice(from_ofs, from_ofs + 2)
+            pre = self.data[patch_sl]
+            post = self.asm(f'b #{hex(to_ofs - from_ofs)}')
+            self.data[patch_sl] = post
+            return self.ret("us_region_spoof", from_ofs, pre, post)
 
         return []
     
@@ -195,6 +290,24 @@ class NbPatcher(BasePatcher):
         OP: WallyCZ
         Description: Skips key check
         '''
+        if self.model == "g3_mcu":
+            pattern_from = [
+                None, 0xdb,
+                None, None,
+                None, None, None, None,
+                None, 0xf5, 0x9a, 0x43,
+                0x43, None,
+                None, 0xd0
+            ]
+            ofs_from = FindPattern(self.data, pattern_from) + len(pattern_from) - 2
+            patch_sl = slice(ofs_from, ofs_from + 2)
+            pre = self.data[patch_sl]
+            instruction = self.disasm(self.data[patch_sl])[0]
+            delta = int(instruction[instruction.rfind('#') + 1:], 0)
+            post = self.asm(f'b #{hex(delta)}')
+            self.data[patch_sl] = post
+            return self.ret("skip_key_check", ofs_from, pre, post)
+
         def find_pattern_wrap(*args, **kwargs):
             try:
                 return FindPattern(*args, **kwargs)
@@ -210,8 +323,6 @@ class NbPatcher(BasePatcher):
         offset = -len(cut_src_sig)
         while (offset := find_pattern_wrap(self.data, cut_src_sig, start=offset + len(cut_src_sig))) != -1:
             patch_offset = offset + 6
-
-            print(hex(patch_offset))
 
             # assuming this is the correct offset, find the destination
             try:
@@ -238,13 +349,13 @@ class NbPatcher(BasePatcher):
         OP: WallyCZ, trueToastedCode
         Description: Allows changing the serial number
         '''
-        if self.model == "zt3pro":
+        if self.model == "zt3pro_vcu":
             sig = self.asm('ldrb.w r1,[r1,#0x24]')
             ofs = FindPattern(self.data, sig)
             pre = self.data[ofs:ofs+4]
             post = self.asm('mov.w r1, #0x1')
-        elif self.model == "g3":
-            sig = self.asm('ldrb.w r3,[r8,#0x24]')
+        elif self.model == "g3_vcu":
+            sig = self.asm('ldrb.w r3,[r3,#0x24]')
             ofs = FindPattern(self.data, sig)
             pre = self.data[ofs:ofs+4]
             post = self.asm('mov.w r3, #0x1')
@@ -291,7 +402,7 @@ class NbPatcher(BasePatcher):
                 post = self.asm("movs r0, #0x6")
                 self.data[ofs_dst:ofs_dst+2] = post
                 res += self.ret("region_free_1", ofs_dst, pre, post)
-        elif self.model == "zt3pro":
+        elif self.model == "zt3pro_vcu":
             sig = [0xC0, 0x78, 0x45, 0x28]
             ofs = FindPattern(self.data, sig)
 

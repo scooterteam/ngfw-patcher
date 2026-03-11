@@ -23,6 +23,7 @@
 import inspect
 import io
 import os
+import json
 import pathlib
 import traceback
 from datetime import datetime
@@ -163,19 +164,36 @@ def patch(data):
     device = flask.request.form.get('device')
     if device in ["1s", "pro2", "lite", "mi3", "4pro"]:
         patcher = MiPatcher(data, device)
-    elif device in ["f2pro", "f2plus", "f2", "g2", "4plus", "4max", "zt3pro", "g3", "f3pro", "gt3"]:
+    elif device in [
+        "f2pro", "f2plus", "f2", "g2", "4plus", "4max",
+        "zt3pro_vcu", "g3_vcu", "g3_mcu", "f3pro_vcu", "gt3_vcu"
+    ]:
         patcher = NbPatcher(data, device)
         is_nb = True
 
-    embed_rand_code = flask.request.form.get('embed_rand_code', None)
-    embed_rand_code = embed_rand_code.strip() if embed_rand_code is not None else None
-    if embed_rand_code:
-        res.append(('EMBED_RAND_CODE', patcher.embed_rand_code(embed_rand_code)))
+    if (
+        (version := flask.request.form.get('version_spoof', None)) is not None and
+        (version := version.strip())
+    ):
+        res.append(('Version Spoof', patcher.version_spoof(version)))
 
-    embed_enc_key = flask.request.form.get('embed_enc_key', None)
-    embed_enc_key = embed_enc_key.strip() if embed_enc_key is not None else None
-    if embed_enc_key:
-        res.append(('EMBED_ENC_KEY', patcher.embed_enc_key(embed_enc_key)))
+    if (speed_table_data := flask.request.form.get('speed_table_data')) is not None:
+        res.append(('Speed Table', patcher.embed_speed_table(json.loads(speed_table_data))))
+
+    if (
+        (embed_rand_code := flask.request.form.get('embed_rand_code')) is not None and
+        (embed_rand_code := embed_rand_code.strip())
+    ):
+        res.append(('Embed Rand Code', patcher.embed_rand_code(embed_rand_code)))
+
+    if (
+        (embed_enc_key := flask.request.form.get('embed_enc_key')) is not None and
+        (embed_enc_key := embed_enc_key.strip())
+    ):
+        res.append(('Embed Enc Key', patcher.embed_enc_key(embed_enc_key)))
+
+    if (flask.request.form.get('disable_custom_enc_key')) is not None:
+        res.append(("Disable Custom Enc Key", patcher.disable_custom_enc_key()))
 
     us_region_spoof = flask.request.form.get('us_region_spoof', None)
     if us_region_spoof is not None:
@@ -428,14 +446,6 @@ def patch_firmware():
 
     try:
         res, data_patched = patch(zippy.data)
-        if (
-            not res
-            and (
-                not custom_enc_key
-                or (custom_enc_key and pod not in ["Zip", ".bin.enc"])
-            )
-        ):
-            return 'No patches applied. Make sure to select the correct input file and at least one patch.'
         params = '\n'.join([x[0] for x in res]) + '\n'
         zippy.params = params
         zippy.data = data_patched

@@ -105,15 +105,16 @@
                                     <option value="f2">F2</option>
                                     <option value="f2plus">F2Plus</option>
                                     <option value="f2pro">F2Pro</option>
-                                    <option value="f3pro">F3 Pro</option>
+                                    <option value="f3pro_vcu">F3 Pro VCU</option>
                                 </optgroup>
                                 <optgroup label="G Series">
-                                    <option value="g2">G2</option>
-                                    <option value="g3">G3</option>
-                                    <option value="gt3">GT3</option>
+                                    <option value="g2">G2 (1.7.6)</option>
+                                    <option value="g3_vcu">G3 VCU (1.5.15)</option>
+                                    <option value="g3_mcu">G3 MCU (1.5.0)</option>
+                                    <option value="gt3_vcu">GT3 VCU (1.5.8)</option>
                                 </optgroup>
                                 <optgroup label="Z Series">
-                                    <option value="zt3pro">ZT3 Pro</option>
+                                    <option value="zt3pro_vcu">ZT3 Pro VCU (1.4.11)</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -184,7 +185,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-group text-center d-grid">
+                    <div class="card-group text-center">
                         <div class="card">
                             <div class="card-header">
                                 <input class="form-check-input" type="checkbox" name="embed_rand_code_cb"
@@ -195,6 +196,30 @@
                                 <div class="card-text">Custom rand code to be embedded into the firmware.</div>
                                 <div class="py-2"></div>
                                 <input class="form-control text-center" type="text" name="embed_rand_code">
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="disable_custom_enc_key">
+                                <label class="form-check-label"><b>Disable Custom Encryption Key</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-text">Change the references pointing to the custom encryption key to
+                                    the default key, which is embedded as well.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-group text-center">
+                        <div class="card">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="version_spoof_cb"
+                                    onchange="CheckForm('version_spoof', this);">
+                                <label class="form-check-label"><b>Spoof Version</b></label>
+                            </div>
+                            <div class="card-body d-grid" style="grid-template-rows: auto 1fr auto;">
+                                <div class="card-text">Spoof the firmware version.</div>
+                                <div class="py-2"></div>
+                                <input class="form-control text-center" type="text" name="version_spoof">
                             </div>
                         </div>
                     </div>
@@ -818,6 +843,57 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Speed Table Card -->
+                    <div class="card-group">
+                        <div class="card text-center m-1">
+                            <div class="card-header">
+                                <input class="form-check-input" type="checkbox" name="speed_table_cb" id="speed_table_cb"
+                                    onchange="ToggleCustomTable(this);">
+                                <label class="form-check-label"><b>Speed Table</b></label>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-text mb-3">
+                                    Edit the table values below. Each cell can be modified individually.
+                                    Use the <b>Reset</b> button to restore defaults.
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm text-center align-middle" id="speed_value_table" style="font-size: 0.85rem; font-family: monospace;">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th rowspan="2" style="min-width:60px;">Region</th>
+                                                <th colspan="3">Eco</th>
+                                                <th colspan="3">Drive</th>
+                                                <th colspan="3">Sport</th>
+                                            </tr>
+                                            <tr>
+                                                <th>kph</th>
+                                                <th>p max</th>
+                                                <th>c max</th>
+
+                                                <th>kph</th>
+                                                <th>p max</th>
+                                                <th>c max</th>
+
+                                                <th>kph</th>
+                                                <th>p max</th>
+                                                <th>c max</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="speed_table_body">
+                                            <!-- Rows injected by JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="ResetCustomTable()">
+                                        <i class="fas fa-undo me-1"></i>Reset to Defaults
+                                    </button>
+                                </div>
+                                <input type="hidden" name="speed_table_data" id="speed_table_data">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END: Speed Table Card -->
                 </div>
             </div>
 
@@ -835,7 +911,7 @@
                                     onchange="CheckForm('wheelsize', this);">
                                 <label class="form-check-label"><b>Wheel Size</b></label>
                             </div>
-
+``
                             <div class="card-body">
                                 <div class="card-title">
                                     <div class="row">
@@ -973,7 +1049,8 @@
                             <i class="fas fa-star me-2"></i>Thanks to WallyCZ and Encryptize for the awesome collab!
                         </p>
                         <p>
-                            <i class="fas fa-magic me-2"></i>Thanks to TrueToastedCode for a ton of contributions (new patches, enhancements, etc.)!
+                            <i class="fas fa-magic me-2"></i>Thanks to TrueToastedCode for a ton of contributions (new
+                            patches, enhancements, etc.)!
                         </p>
                         <p>
                             <i class="fas fa-code-branch me-2"></i>Based on BotoX

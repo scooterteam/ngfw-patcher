@@ -31,6 +31,7 @@ const forms = {
     "EMBED_ENC_KEY": "embed_enc_key",
     "CUSTOM_ENC_KEY": "custom_enc_key",
     "EMBED_RAND_CODE": "embed_rand_code",
+    "DISABLE_CUSTOM_ENC_KEY": "disable_custom_enc_key",
     "US_REGION_SPOOF": "us_region_spoof",
     "ALLOW_SN_CHANGE": "allow_sn_change",
     "BLM": "blm",
@@ -44,6 +45,8 @@ const forms = {
     "KML_L0": "kml_l0",
     "KML_L1": "kml_l1",
     "KML_L2": "kml_l2",
+    "SPEED_TABLE": "speed_table",
+    "VERSION_SPOOF": "version_spoof"
 };
 
 // Move all functions from the script section
@@ -169,10 +172,11 @@ function UdateVisibilityForDevice(dev) {
         case "f2plus":
         case "f2":
         case "g2":
-        case "zt3pro":
-        case "g3":
-        case "f3pro":
-        case "gt3":
+        case "zt3pro_vcu":
+        case "g3_vcu":
+        case "g3_mcu":
+        case "f3pro_vcu":
+        case "gt3_vcu":
             dkcElTitleNinebot.style.display = 'inline';
             dkcElTitleXiaomi.style.display = 'none';
             dkcElInfoNinebot.style.display = 'block';
@@ -200,10 +204,11 @@ function ChangeDevice() {
         case "f2plus": Preset_F2Plus(); break;
         case "f2": Preset_F2(); break;
         case "g2": Preset_G2(); break;
-        case "zt3pro": Preset_ZT3Pro(); break;
-        case "g3": Preset_G3(); break;
-        case "f3pro": Preset_F3Pro(); break;
-        case "gt3": Preset_GT3(); break;
+        case "zt3pro_vcu": Preset_ZT3Pro_VCU(); break;
+        case "g3_vcu": Preset_G3_VCU(); break;
+        case "g3_mcu": Preset_G3_MCU(); break;
+        case "f3pro_vcu": Preset_F3Pro_VCU(); break;
+        case "gt3_vcu": Preset_GT3_VCU(); break;
     }
 }
 
@@ -218,6 +223,9 @@ function Preset_1S() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
+    GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
+    GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
 }
 
 function Preset_Pro2() {
@@ -231,6 +239,9 @@ function Preset_Pro2() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
+    GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
+    GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
 }
 
 function Preset_Lite() {
@@ -247,6 +258,9 @@ function Preset_Lite() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
+    GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
+    GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
 }
 
 function Preset_Mi3() {
@@ -260,6 +274,9 @@ function Preset_Mi3() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
+    GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
+    GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
 }
 
 function Preset_4Pro() {
@@ -277,6 +294,9 @@ function Preset_4Pro() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
+    GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
+    GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
 }
 
 function Preset_4ProPlus() {
@@ -337,6 +357,9 @@ function Preset_F2Base() {
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = true;
+    GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
+    GetForm(forms.VERSION_SPOOF + "_cb").disabled = true;
 }
 
 function Preset_G2() {
@@ -366,9 +389,10 @@ function Preset_G2() {
     GetForm(forms.BAUD).disabled = true;
     GetForm(forms.ECO_MODE).disabled = true;
     GetForm(forms.PNB).disabled = true;
+    GetForm(forms.SPEED_TABLE + "_cb").disabled = true;
 }
 
-function Preset_ZT3Pro() {
+function Preset_ZT3Pro_VCU() {
     DisableAll(true);
     GetForm(forms.RML).disabled = false;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
@@ -379,7 +403,7 @@ function Preset_ZT3Pro() {
     GetForm(forms.ALLOW_SN_CHANGE).disabled = false;
 }
 
-function Preset_G3() {
+function Preset_G3_VCU() {
     DisableAll(true);
     GetForm(forms.RML).disabled = false;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
@@ -387,9 +411,22 @@ function Preset_G3() {
     GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
     GetForm(forms.US_REGION_SPOOF).disabled = false;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = false;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = false;
+    GetForm(forms.SPEED_TABLE + "_cb").disabled = false;
+    GetForm(forms.VERSION_SPOOF + "_cb").disabled = false;
 }
 
-function Preset_F3Pro() {
+function Preset_G3_MCU() {
+    DisableAll(true);
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = false;
+    GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
+    GetForm(forms.RML).disabled = false;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = false;
+    GetForm(forms.VERSION_SPOOF + "_cb").disabled = false;
+}
+
+function Preset_F3Pro_VCU() {
     DisableAll(true);
     GetForm(forms.RML).disabled = false;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
@@ -397,12 +434,13 @@ function Preset_F3Pro() {
     GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
 }
 
-function Preset_GT3() {
+function Preset_GT3_VCU() {
     DisableAll(true);
     GetForm(forms.RML).disabled = false;
     GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = false;
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = false;
     GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = false;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = false;
 }
 
 function DisableAll(disable) {
@@ -436,6 +474,9 @@ function DisableAll(disable) {
     GetForm(forms.KML).disabled = disable;
     GetForm(forms.US_REGION_SPOOF).disabled = disable;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = disable;
+    GetForm(forms.DISABLE_CUSTOM_ENC_KEY).disabled = disable;
+    GetForm(forms.SPEED_TABLE + "_cb").disabled = disable;
+    GetForm(forms.VERSION_SPOOF + "_cb").disabled = disable;
 }
 
 function Ped_To_Eco(cb) {
@@ -500,6 +541,7 @@ function Preset_Default() {
     ChangeForm(forms.KML_L0, "6", null);
     ChangeForm(forms.KML_L1, "12", null);
     ChangeForm(forms.KML_L2, "20", null);
+    ChangeForm(forms.VERSION_SPOOF, "", false);
 }
 
 // Initialize form values from URL parameters on page load
@@ -576,4 +618,86 @@ document.addEventListener('DOMContentLoaded', function () {
             new bootstrap.Collapse(collapse, { show: true });
         }
     });
+});
+
+const SPEED_TABLE_DEFAULTS = [
+    [16, 35, 13, 25, 55, 17, 32, 100, 35],
+    [15, 35, 13, 20, 55, 17, 25, 100, 35],
+    [15, 35, 13, 20, 55, 17, 20, 100, 35],
+    [16, 35, 13, 25, 55, 17, 45, 100, 35],
+    [12, 35, 13, 20, 55, 17, 25, 100, 35],
+    [15, 35, 13, 20, 55, 17, 25, 100, 35],
+];
+
+const SPEED_TABLE_REGIONS = [
+    "0(C)",
+    "1(A)",
+    "2(rest)",
+    "3(E)",
+    "4(D)",
+    "5(I)",
+];
+
+function BuildCustomTable(data) {
+    const tbody = document.getElementById('speed_table_body');
+    tbody.innerHTML = '';
+    data.forEach(function(row, rowIdx) {
+        const tr = document.createElement('tr');
+        // Record label cell
+        const th = document.createElement('th');
+        th.scope = 'row';
+        th.textContent = SPEED_TABLE_REGIONS[rowIdx] ?? rowIdx;
+        th.style.background = '#343a40';
+        th.style.color = '#fff';
+        tr.appendChild(th);
+        // Value cells
+        row.forEach(function(val, colIdx) {
+            const td = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = val;
+            input.min = 0;
+            input.max = 65535;
+            input.step = 1;
+            input.style.cssText = 'width:58px;text-align:center;border:1px solid #ced4da;border-radius:4px;padding:2px 4px;font-family:monospace;font-size:0.85rem;';
+            input.dataset.row = rowIdx;
+            input.dataset.col = colIdx;
+            input.addEventListener('input', SerializeCustomTable);
+            td.appendChild(input);
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+    SerializeCustomTable();
+}
+
+function SerializeCustomTable() {
+    const inputs = document.querySelectorAll('#speed_table_body input[type=number]');
+    const rows = SPEED_TABLE_DEFAULTS.length;
+    const cols = SPEED_TABLE_DEFAULTS[0].length;
+    const data = Array.from({length: rows}, () => Array(cols).fill(0));
+    inputs.forEach(function(inp) {
+        data[inp.dataset.row][inp.dataset.col] = parseInt(inp.value) || 0;
+    });
+    document.getElementById('speed_table_data').value = JSON.stringify(data);
+}
+
+function ResetCustomTable() {
+    BuildCustomTable(SPEED_TABLE_DEFAULTS);
+}
+
+function ToggleCustomTable(cb, checked=null) {
+    const inputs = document.querySelectorAll('#speed_table_body input[type=number]');
+    inputs.forEach(function(inp) {
+        inp.disabled = checked ?? !cb.checked;
+    });
+    document.getElementById('speed_table_data').disabled = !cb.checked;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    BuildCustomTable(SPEED_TABLE_DEFAULTS);
+    const inputs = document.querySelectorAll('#speed_table_body input[type=number]');
+    inputs.forEach(function(inp) { inp.disabled = true; });
+    // Add this line:
+    document.getElementById('speed_table_data').disabled = true;
 });

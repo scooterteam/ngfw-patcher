@@ -26,7 +26,10 @@ import json
 from urllib import request
 import os
 from io import BytesIO
-import fasttea
+from ninebottea import NinebotTEA
+
+
+default_tea = NinebotTEA()
 
 
 ROOTPATH = os.path.dirname(os.path.dirname(
@@ -80,17 +83,17 @@ class Zippy():
                         raise Exception("Decode error")
 
     def encrypt(self, key=None):
-        if key:
-            return fasttea.encrypt(bytes(self.data), key)
-        else:
-            return fasttea.encrypt(bytes(self.data))
+        tea = default_tea if key is None else NinebotTEA(key=key)
+        return tea.encrypt(bytes(self.data))
 
-    def decrypt(self):
-        return fasttea.decrypt(bytes(self.data))
+    def decrypt(self, key=None):
+        tea = default_tea if key is None else NinebotTEA(key=key)
+        return tea.decrypt(bytes(self.data))
 
     @staticmethod
     def get_v3(name, model, md5, md5e, enforce):
         compatible_list = []
+        fw_type = 'DRV'
         if model in ["1s", "pro2", "lite", "mi3"]:
             compatible_list = ["mi_DRV_STM32F103CxT6"]
             if model != "4pro":
@@ -98,16 +101,31 @@ class Zippy():
         elif model in ["f2", "f2plus", "f2pro"]:
             model = "f2"
             compatible_list += ["f2_DRV_AT32F415CxT7"]
-        elif model in ["g2"]:
+        elif model == "g2":
             compatible_list += ["g2_DRV_AT32F415CxT7"]
-
+        elif model == "g3_vcu":
+            compatible_list += ["g3_VCU_AT32"]
+            model = 'g3'
+            fw_type = 'VCU'
+        elif model == "g3_mcu":
+            compatible_list += ["x3_MCU_AT32"]
+            model = 'g3'
+            fw_type = 'MCU'
+        elif model == "zt3pro_vcu":
+            compatible_list += ["x3_VCU_AT32"]
+            model = 'zt3pro'
+            fw_type = 'VCU'
+        elif model == "f3pro_vcu":
+            compatible_list += ["f3_VCU_AT32"]
+            model = 'f3pro'
+            fw_type = 'VCU'
         data = {
             "schemaVersion": 1,
             "firmware": {
                 "displayName": name,
                 "model": model,
                 "enforceModel": enforce,
-                "type": "DRV",
+                "type": fw_type,
                 "compatible": compatible_list,
                 "encryption": "both",
                 "md5": {
@@ -131,10 +149,6 @@ class Zippy():
         zip_file.writestr('FIRM.bin.enc', enc_data)
         md5e = hashlib.md5()
         md5e.update(enc_data)
-
-        info_txt = 'dev: {};\nnam: {};\nenc: B;\ntyp: DRV;\nmd5: {};\nmd5e: {};\n'.format(
-            self.model, self.name, md5.hexdigest(), md5e.hexdigest())
-        zip_file.writestr('info.txt', info_txt.encode())
 
         info_json = Zippy.get_v3(self.name, self.model, md5.hexdigest(), md5e.hexdigest(), enforce)
         zip_file.writestr('info.json', info_json.encode())
