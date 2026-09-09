@@ -97,7 +97,7 @@ function CheckForm(name, cb) {
     if (o.value != 0) {
         // temp
         const dev = document.getElementById("devselect").value;
-        if (dev == '4pro' && name == forms.BLM_ALM) {
+        if (dev == '4pro' || dev == '4proita') && name == forms.BLM_ALM) {
             return;
         }
         o.disabled = !cb.checked;
@@ -158,6 +158,7 @@ function UdateVisibilityForDevice(dev) {
         case "lite":
         case "mi3":
         case "4pro":
+        case "4proita":
         case "4plus":
         case "4max":
             dkcElTitleNinebot.style.display = 'none';
@@ -194,6 +195,7 @@ function ChangeDevice() {
         case "lite": Preset_Lite(); break;
         case "mi3": Preset_Mi3(); break;
         case "4pro": Preset_4Pro(); break;
+        case "4proita": Preset_4ProITA(); break;
         case "4plus": Preset_4ProPlus(); break;
         case "4max": Preset_4ProMax(); break;
         case "f2pro": Preset_F2Pro(); break;
@@ -277,6 +279,39 @@ function Preset_4Pro() {
     GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
     GetForm(forms.US_REGION_SPOOF).disabled = true;
     GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+}
+
+function Preset_4ProITA() {
+    // F4 EC_ESC_Driver_V1.0.1.5 (ninebot.scooter.15) — mi_patcher 4proita
+    ChangeForm(forms.SL_SPORT, "20", false);
+    ChangeForm(forms.SL_DRIVE, "15", false);
+    ChangeForm(forms.SL_PED, "5", false);
+    ChangeForm(forms.AMPS_SPORT, "26500", false);
+    ChangeForm(forms.AMPS_DRIVE, "19000", false);
+    ChangeForm(forms.AMPS_PED, "7000", false);
+    ChangeForm(forms.AMPS_SPORT_MAX, "55000", false);
+    ChangeForm(forms.AMPS_DRIVE_MAX, "35000", false);
+    ChangeForm(forms.AMPS_PED_MAX, "8000", false);
+    ChangeForm(forms.CRC, "300", false);
+    ChangeForm(forms.MOTOR_START_SPEED, "5.0", false);
+    ChangeForm(forms.SHUTDOWN_TIME, "2.5", false);
+    ChangeForm(forms.CC_DELAY, "5", false);
+    ChangeForm(forms.VOLT, "43.01", false);
+    ChangeForm(forms.WHEELSIZE, "10.0", false);
+    GetForm(forms.RML).disabled = false;
+    GetForm(forms.DMN).disabled = true;
+    GetForm(forms.BTS).disabled = true;
+    GetForm(forms.BLM_ALM).disabled = true;
+    GetForm(forms.WHEELSIZE + "_cb").disabled = true;
+    GetForm(forms.AMPS_BRAKE_MIN + "_cb").disabled = true;
+    GetForm(forms.AMPS_BRAKE_MAX + "_cb").disabled = true;
+    GetForm(forms.AMMETER).disabled = true;
+    GetForm(forms.BAUD).disabled = true;
+    GetForm(forms.EMBED_ENC_KEY + "_cb").disabled = true;
+    GetForm(forms.EMBED_RAND_CODE + "_cb").disabled = true;
+    GetForm(forms.US_REGION_SPOOF).disabled = true;
+    GetForm(forms.ALLOW_SN_CHANGE).disabled = true;
+    GetForm(forms.CUSTOM_ENC_KEY + "_cb").disabled = true;
 }
 
 function Preset_4ProPlus() {

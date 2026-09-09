@@ -35,7 +35,13 @@ if __name__ == "__main__":
 
     parser = ArgumentParser()
     parser.add_argument("type", choices=['mi', 'nb'])
-    parser.add_argument("model", choices=['1s', 'pro2', 'lite', 'mi3', '4pro', '4plus', '4max', 'f2pro', 'f2plus', 'f2', 'g2'])
+    parser.add_argument(
+        "model",
+        choices=[
+            '1s', 'pro2', 'lite', 'mi3', '4pro', '4proita',
+            '4plus', '4max', 'f2pro', 'f2plus', 'f2', 'g2',
+        ],
+    )
     parser.add_argument("infile")
     parser.add_argument("outfile")
     parser.add_argument("patches")
@@ -52,6 +58,8 @@ if __name__ == "__main__":
 
     if args.type == 'mi':
         vlt = MiPatcher(data, args.model)
+        if args.model == '4proita':
+            mult = 10.0 / 10.0
 
         patches = {
             'dpc': lambda: vlt.dpc(),
@@ -64,7 +72,11 @@ if __name__ == "__main__":
             'amp': lambda: vlt.ampere_ped(10000),
             'amd': lambda: vlt.ampere_drive(20000),
             'ams': lambda: vlt.ampere_sport(30000),
-            'alm': lambda: vlt.ampere_max(10000, 30000, 55000),
+            'alm': lambda: (
+                vlt.ampere_max(10000, 35000, 55000)
+                if args.model == '4proita'
+                else vlt.ampere_max(10000, 30000, 55000)
+            ),
             'rml': lambda: vlt.remove_modellock(),
             'rks': lambda: vlt.remove_kers(),
             'rab': lambda: vlt.remove_autobrake(),
@@ -73,11 +85,19 @@ if __name__ == "__main__":
             'ccd': lambda: vlt.cc_delay(2),
             'rfm': lambda: vlt.region_free(),
             'llm': lambda: vlt.lower_light(),
-            'blm': lambda: vlt.brake_light(),
+            'blm': lambda: (
+                vlt.brake_light_static()
+                if args.model == '4proita'
+                else vlt.brake_light()
+            ),
             'amm': lambda: vlt.ampere_meter(shift=8),
             'lrb': lambda: vlt.lever_resolution(brake=0x9c),
             'bud': lambda: vlt.bms_baudrate(76800),
-            'vlt': lambda: vlt.volt_limit(56.01),
+            'vlt': lambda: (
+                vlt.volt_limit(45.01)
+                if args.model == '4proita'
+                else vlt.volt_limit(56.01)
+            ),
             'pnb': lambda: vlt.ped_noblink(),
             'bts': lambda: vlt.button_swap(),
             'fud': lambda: vlt.fake_uid("0102030405060708090A0B0C"),

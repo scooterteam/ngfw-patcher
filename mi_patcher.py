@@ -40,6 +40,23 @@ class MiPatcher(BasePatcher):
             "mi3": {
             },
             "4pro": {
+            },
+            "4proita": {
+                "speed_limit_ped": 5,
+                "speed_limit_drive": 15,
+                "speed_limit_sport": 20,
+                "ampere_ped": 7000,
+                "ampere_drive": 19000,
+                "ampere_sport": 26500,
+                "ampere_ped_max": 8000,
+                "ampere_drive_max": 35000,
+                "ampere_sport_max": 55000,
+                "volt_limit": 43.01,
+                "current_raising_coeff": 300,
+                "motor_start_speed": 5.0,
+                "shutdown_time": 2.5,
+                "cc_delay": 5.0,
+                "wheel_size": 10.0,
             }
         }
 
@@ -92,10 +109,17 @@ class MiPatcher(BasePatcher):
             sig = [None, 0x68, 0x42, 0xf6, 0x6e, 0x0c]
             ofs = FindPattern(self.data, sig) + 2
         except SignatureException:
-            # 022
-            sig = [0x2C, 0xE0, 0x18, 0x68, 0x42, 0xF6, 0xD0, 0x7b]
-            ofs = FindPattern(self.data, sig) + 4
-            reg = 11
+            try:
+                # 022
+                sig = [0x2C, 0xE0, 0x18, 0x68, 0x42, 0xF6, 0xD0, 0x7b]
+                ofs = FindPattern(self.data, sig) + 4
+                reg = 11
+            except SignatureException:
+                # V1.0.1.5
+                sig = [0x68, 0x66, 0x28, 0xe0, 0x36, 0x4b, 0x18, 0x68,
+                       0x43, 0xf2, 0x0c, 0x0c, 0x60, 0x45, 0x22, 0xdd]
+                ofs = FindPattern(self.data, sig) + 8
+                reg = 12
         post = bytes(self.ks.asm(f'MOVW R{reg}, #0xffff')[0])
         pre = self.data[ofs:ofs+4]
         self.data[ofs:ofs+4] = post
@@ -136,10 +160,17 @@ class MiPatcher(BasePatcher):
                     ofs = FindPattern(self.data, sig) + 0xa
                     reg = 1
                 except SignatureException:
-                    # 022
-                    sig = [0x95, 0xf8, 0x34, 0xc0, 0x4f, 0xf4, 0x96, 0x73]
-                    ofs = FindPattern(self.data, sig) + 4
-                    reg = 3
+                    try:
+                        # 022
+                        sig = [0x95, 0xf8, 0x34, 0xc0, 0x4f, 0xf4, 0x96, 0x73]
+                        ofs = FindPattern(self.data, sig) + 4
+                        reg = 3
+                    except SignatureException:
+                        # V1.0.1.5
+                        sig = [0x40, 0x60, 0x94, 0xf8, 0x34, 0xc0, 0x14, 0x23,
+                               0x4f, 0xf4, 0x96, 0x72, 0x46, 0xf2, 0x84, 0x71]
+                        ofs = FindPattern(self.data, sig) + 8
+                        reg = 2
 
         pre = self.data[ofs:ofs+4]
         post = bytes(self.ks.asm('MOVW R{}, #{}'.format(reg, coeff))[0])
@@ -171,10 +202,17 @@ class MiPatcher(BasePatcher):
                     ofs = FindPattern(self.data, sig) + 2
                     reg = 0
                 except SignatureException:
-                    # 022
-                    sig = [0x59, 0x00, 0x14, 0x22, 0x46]
-                    ofs = FindPattern(self.data, sig) + 2
-                    reg = 2
+                    try:
+                        # 022
+                        sig = [0x59, 0x00, 0x14, 0x22, 0x46]
+                        ofs = FindPattern(self.data, sig) + 2
+                        reg = 2
+                    except SignatureException:
+                        # V1.0.1.5
+                        sig = [0x2c, 0xe0, 0x08, 0xe0, 0xa5, 0xf8, 0x30, 0xc0,
+                               0x0f, 0x20, 0xa8, 0x84, 0x48, 0xf6, 0xb8, 0x00]
+                        ofs = FindPattern(self.data, sig) + 8
+                        reg = 0
 
         pre = self.data[ofs:ofs+2]
         post = bytes(self.ks.asm('MOVS R{}, #{}'.format(reg, kmh))[0])
@@ -188,6 +226,19 @@ class MiPatcher(BasePatcher):
         Creator/Author: SH
         '''
         ret = []
+
+        try:
+            # V1.0.1.5 (movs r3, #imm — 2 bytes)
+            sig = [0x84, 0xf8, 0x40, 0x60, 0x94, 0xf8, 0x34, 0xc0,
+                   0x14, 0x23, 0x4f, 0xf4, 0x96, 0x72, 0x46, 0xf2]
+            ofs = FindPattern(self.data, sig) + 8
+            pre = self.data[ofs:ofs+2]
+            post = bytes(self.ks.asm('MOVS R3, #{}'.format(kmh))[0])
+            self.data[ofs:ofs+2] = post
+            ret.append(["sl_sport", hex(ofs), pre.hex(), post.hex()])
+            return ret
+        except SignatureException:
+            pass
 
         # TODO: all trying to find same position
         reg = 8
@@ -227,6 +278,19 @@ class MiPatcher(BasePatcher):
         '''
         ret = []
 
+        try:
+            # V1.0.1.5
+            sig = [0x46, 0xf2, 0x84, 0x71, 0x4f, 0xf4, 0x16, 0x7e,
+                   0x4f, 0xf0, 0x05, 0x09, 0xbc, 0xf1, 0x01, 0x0f]
+            ofs = FindPattern(self.data, sig) + 8
+            pre = self.data[ofs:ofs+4]
+            post = bytes(self.ks.asm('MOV.W R9, #{}'.format(kmh))[0])
+            self.data[ofs:ofs+4] = post
+            ret.append(["sl_ped", hex(ofs), pre.hex(), post.hex()])
+            return ret
+        except SignatureException:
+            pass
+
         # TODO: both trying to find same position
         try:
             sig = [0x4f, 0xf0, 0x05, None, 0x01, None, 0x02, 0xd1]
@@ -259,12 +323,20 @@ class MiPatcher(BasePatcher):
             val = struct.pack('<H', round(kmh * 345))
             pre, post = PatchImm(self.data, ofs, 4, val, MOVW_T3_IMM)
         except SignatureException:
-            # 022
-            sig = [0x01, 0x08, 0xb1, 0xf5, 0xff, 0x6f]
-            ofs = FindPattern(self.data, sig) + 2
-            pre = self.data[ofs:ofs+4]
-            post = bytes(self.ks.asm("CMP.W R1, #{}".format(round(kmh*408)))[0])
-            self.data[ofs:ofs+4] = post
+            try:
+                # 022
+                sig = [0x01, 0x08, 0xb1, 0xf5, 0xff, 0x6f]
+                ofs = FindPattern(self.data, sig) + 2
+                pre = self.data[ofs:ofs+4]
+                post = bytes(self.ks.asm("CMP.W R1, #{}".format(round(kmh*408)))[0])
+                self.data[ofs:ofs+4] = post
+            except SignatureException:
+                # V1.0.1.5 (scale 410)
+                sig = [0x69, 0x40, 0xf0, 0xb4, 0x2e, 0x4a, 0x16, 0x68,
+                       0x40, 0xf6, 0x02, 0x07, 0x2d, 0x4d, 0x01, 0x24]
+                ofs = FindPattern(self.data, sig) + 8
+                val = struct.pack('<H', int(round(float(kmh) * 410)))
+                pre, post = PatchImm(self.data, ofs, 4, val, MOVW_T3_IMM)
         return [("mss", hex(ofs), pre.hex(), post.hex())]
 
     def wheel_speed_const(self, factor):
@@ -330,6 +402,25 @@ class MiPatcher(BasePatcher):
 
         val = struct.pack('<H', amps)
 
+        try:
+            # V1.0.1.5
+            sig = [0x34, 0xc0, 0x14, 0x23, 0x4f, 0xf4, 0x96, 0x72,
+                   0x46, 0xf2, 0x84, 0x71, 0x4f, 0xf4, 0x16, 0x7e]
+            ofs = FindPattern(self.data, sig) + 8
+            pre, post = PatchImm(self.data, ofs, 4, val, MOVW_T3_IMM)
+            ret.append(["amp_sport", hex(ofs), pre.hex(), post.hex()])
+            if force:
+                sig_f = [0x60, 0x45, 0x0e, 0xd2, 0x28, 0x86, 0x0e, 0xe0,
+                         0x88, 0x42, 0x01, 0xd2, 0x28, 0x86, 0x00, 0xe0]
+                ofs_f = FindPattern(self.data, sig_f) + 8
+                pre = self.data[ofs_f:ofs_f+2]
+                post = bytes(self.ks.asm('CMP R0, R0')[0])
+                self.data[ofs_f:ofs_f+2] = post
+                ret.append(["amp_sport_force", hex(ofs_f), pre.hex(), post.hex()])
+            return ret
+        except SignatureException:
+            pass
+
         if force:
             try:
                 sig = [0x13, 0xD2, None, 0x85, None, 0xE0, None, 0x8E]
@@ -384,6 +475,23 @@ class MiPatcher(BasePatcher):
         ret = []
 
         val = struct.pack('<H', amps)
+
+        try:
+            # V1.0.1.5
+            sig = [0x40, 0xc0, 0xbc, 0xf1, 0x01, 0x0f, 0x05, 0xd0,
+                   0x44, 0xf6, 0x38, 0x2c, 0x60, 0x45, 0x0e, 0xd2]
+            ofs = FindPattern(self.data, sig) + 8
+            pre, post = PatchImm(self.data, ofs, 4, val, MOVW_T3_IMM)
+            ret.append(["amp_drive", hex(ofs), pre.hex(), post.hex()])
+            if force:
+                ofs_f = ofs + 4
+                pre = self.data[ofs_f:ofs_f+2]
+                post = bytes(self.ks.asm('CMP R0, R0')[0])
+                self.data[ofs_f:ofs_f+2] = post
+                ret.append(["amp_drive_force", hex(ofs_f), pre.hex(), post.hex()])
+            return ret
+        except SignatureException:
+            pass
 
         try:
             sig = [0x95, 0xf8, 0x40, None, 0x01, None, 0x06, 0xd0, None, 0x8e]
@@ -441,6 +549,35 @@ class MiPatcher(BasePatcher):
         Creator/Author: BotoX/SH
         '''
         ret = []
+
+        try:
+            # V1.0.1.5
+            if amps_ped is not None:
+                sig = [0xa5, 0xf8, 0x30, 0xc0, 0xa5, 0xf8, 0x24, 0x90,
+                       0x4f, 0xf4, 0xfa, 0x50, 0x28, 0x85, 0x68, 0x66]
+                ofs = FindPattern(self.data, sig) + 8
+                pre = self.data[ofs:ofs+4]
+                post = bytes(self.ks.asm('MOVW R0,#{}'.format(amps_ped))[0])
+                self.data[ofs:ofs+4] = post
+                ret.append(["amp_max_ped", hex(ofs), pre.hex(), post.hex()])
+            if amps_sport is not None:
+                sig = [0x28, 0x86, 0x00, 0xe0, 0x29, 0x86, 0xab, 0x84,
+                       0x4d, 0xf2, 0xd8, 0x60, 0x28, 0x85, 0x68, 0x66]
+                ofs = FindPattern(self.data, sig) + 8
+                val = struct.pack('<H', int(amps_sport))
+                pre, post = PatchImm(self.data, ofs, 4, val, MOVW_T3_IMM)
+                ret.append(["amp_max_sport", hex(ofs), pre.hex(), post.hex()])
+            if amps_drive is not None:
+                sig = [0xa5, 0xf8, 0x30, 0xc0, 0x0f, 0x20, 0xa8, 0x84,
+                       0x48, 0xf6, 0xb8, 0x00, 0x28, 0x85, 0x68, 0x66]
+                ofs = FindPattern(self.data, sig) + 8
+                val = struct.pack('<H', int(amps_drive))
+                pre, post = PatchImm(self.data, ofs, 4, val, MOVW_T3_IMM)
+                ret.append(["amp_max_drive", hex(ofs), pre.hex(), post.hex()])
+            if ret:
+                return ret
+        except SignatureException:
+            ret = []
 
         sig = [0xa4, 0xf8, None, None, 0x4f, 0xf4, 0xfa]
         ofs_p = FindPattern(self.data, sig) + 4
@@ -526,6 +663,31 @@ class MiPatcher(BasePatcher):
         Creator/Author: SH
         '''
         ret = []
+        try:
+            # V1.0.1.5
+            sig = [0x00, 0x27, 0xaf, 0x71, 0xdf, 0xf8, 0x34, 0x81,
+                   0xa8, 0xf8, 0xec, 0x70, 0x69, 0x79, 0x00, 0x29]
+            ofs = FindPattern(self.data, sig) + 8
+            pre = self.data[ofs:ofs+4]
+            post = bytes(self.ks.asm('NOP')[0])
+            self.data[ofs:ofs+2] = post
+            self.data[ofs+2:ofs+4] = post
+            ret.append(["dpc_nop", hex(ofs), pre.hex(), bytes(self.data[ofs:ofs+4]).hex()])
+
+            sig = [0xa5, 0xf8, 0xe0, 0x60, 0xa5, 0xf8, 0xe2, 0x60,
+                   0xa5, 0xf8, 0xf0, 0x60, 0xa5, 0xf8, 0xee, 0x60]
+            ofs = FindPattern(self.data, sig) + 8
+            pre = self.data[ofs:ofs+8]
+            post = (bytes(self.ks.asm('MOVS R6, #1')[0])
+                    + bytes(self.ks.asm('STRH.W R6, [R5, #0xEC]')[0])
+                    + bytes(self.ks.asm('MOVS R6, #0')[0]))
+            assert len(post) == 8, len(post)
+            self.data[ofs:ofs+8] = post
+            ret.append(["dpc_force", hex(ofs), pre.hex(), post.hex()])
+            return ret
+        except SignatureException:
+            pass
+
         try:
             sig = [0x00, 0x21, 0xa1, 0x71, 0xa2, 0xf8, 0xec, 0x10, 0x63, 0x79]
             ofs = FindPattern(self.data, sig) + 4
@@ -620,6 +782,21 @@ class MiPatcher(BasePatcher):
         '''
         ret = []
 
+        try:
+            # V1.0.1.5 (brake @ +2, ped-mode @ +10)
+            sig = [0xa1, 0x79, 0x01, 0x29, 0x14, 0xd0, 0x90, 0xf8,
+                   0x34, 0x10, 0x01, 0x29, 0x10, 0xd0, 0x01, 0x7a]
+            ofs = FindPattern(self.data, sig)
+            for name, delta in (("blm_brake", 2), ("blm_ped", 10)):
+                o = ofs + delta
+                pre = self.data[o:o+2]
+                post = bytes(self.ks.asm('CMP R1, #0xff')[0])
+                self.data[o:o+2] = post
+                ret.append([name, hex(o), pre.hex(), post.hex()])
+            return ret
+        except SignatureException:
+            pass
+
         sig = [0x01, 0x29, None, 0xd0, 0xa1, 0x79, 0x01, 0x29]
         ofs = FindPattern(self.data, sig) + 6
         pre = self.data[ofs:ofs+2]
@@ -708,6 +885,38 @@ class MiPatcher(BasePatcher):
         Description: Remove all region restrictions bound to serial number
         '''
         ret = []
+
+        try:
+            # V1.0.1.5
+            nop4 = bytes(self.ks.asm('NOP.W')[0])
+            n2 = bytes(self.ks.asm('NOP')[0])
+            sig = [0x04, 0xd1, 0x00, 0x79, 0x39, 0x28, 0x01, 0xd1,
+                   0x87, 0xf8, 0x3e, 0x20, 0xb5, 0xf8, 0xea, 0x00]
+            ofs = FindPattern(self.data, sig) + 8
+            pre = self.data[ofs:ofs+4]
+            self.data[ofs:ofs+4] = nop4
+            ret.append(["rfm_3e", hex(ofs), pre.hex(), nop4.hex()])
+            sig = [0xb5, 0xf8, 0xea, 0x00, 0x02, 0x28, 0x04, 0xd1,
+                   0x3d, 0x37, 0xfa, 0x70, 0x3a, 0x70, 0x88, 0xf8]
+            ofs = FindPattern(self.data, sig) + 8
+            pre = self.data[ofs:ofs+6]
+            self.data[ofs:ofs+2] = n2
+            self.data[ofs+2:ofs+4] = n2
+            self.data[ofs+4:ofs+6] = n2
+            ret.append(["rfm_r2", hex(ofs), pre.hex(), bytes(self.data[ofs:ofs+6]).hex()])
+            sig = [0x00, 0x00, 0x08, 0xb0, 0xbd, 0xe8, 0xf0, 0x81,
+                   0x07, 0xf8, 0x34, 0x2f, 0x3a, 0x72, 0x88, 0xf8]
+            ofs = FindPattern(self.data, sig) + 8
+            pre = self.data[ofs:ofs+4]
+            self.data[ofs:ofs+4] = nop4
+            ret.append(["rfm_r1a", hex(ofs), pre.hex(), nop4.hex()])
+            ofs2 = ofs + 4
+            pre2 = self.data[ofs2:ofs2+2]
+            self.data[ofs2:ofs2+2] = n2
+            ret.append(["rfm_r1b", hex(ofs2), pre2.hex(), n2.hex()])
+            return ret
+        except SignatureException:
+            pass
 
         try:
             sig = self.ks.asm('STRB.W R2,[R1,#0x43]')[0]
@@ -828,10 +1037,17 @@ class MiPatcher(BasePatcher):
             sig = [0xb0, 0xf8, 0xf8, 0x10, None, 0x4b, 0x4f, 0xf4, 0x7a, 0x70]
             ofs = FindPattern(self.data, sig) + 6
         except SignatureException:
-            # 022
-            sig = [0xf8, 0x00, 0x89, 0x46, 0x60, 0x4b, 0x4f, 0xf4, 0x7a, 0x71]
-            ofs = FindPattern(self.data, sig) + 6
-            reg = 1
+            try:
+                # 022
+                sig = [0xf8, 0x00, 0x89, 0x46, 0x60, 0x4b, 0x4f, 0xf4, 0x7a, 0x71]
+                ofs = FindPattern(self.data, sig) + 6
+                reg = 1
+            except SignatureException:
+                # V1.0.1.5
+                sig = [0xb1, 0xf8, 0xf8, 0x00, 0x89, 0x46, 0x5c, 0x4b,
+                       0x4f, 0xf4, 0x7a, 0x71, 0x01, 0x28, 0x32, 0xd1]
+                ofs = FindPattern(self.data, sig) + 8
+                reg = 1
         pre = self.data[ofs:ofs+4]
         post = bytes(self.ks.asm('MOV.W R{},#{}'.format(reg, delay))[0])
         self.data[ofs:ofs+4] = post
@@ -1126,8 +1342,14 @@ class MiPatcher(BasePatcher):
             muls  r0, r0, r1
             lsrs    r0, r0, #0xa
             """
-            sig = [0x00, 0xeb, 0x40, 0x00, 0xc0, 0xf3, 0x55, 0x20, 0x20, 0x86, 0x0a, 0xe0, 0x00, 0xeb, 0x40, 0x00, 0xc0, 0xf3, 0x15, 0x20, 0x20, 0x86, 0x04, 0xe0, 0x00, 0xeb, 0x80, 0x00, 0xc0, 0xf3, 0x15, 0x20]
-            ofs = FindPattern(self.data, sig)
+            try:
+                # 022
+                sig = [0x00, 0xeb, 0x40, 0x00, 0xc0, 0xf3, 0x55, 0x20, 0x20, 0x86, 0x0a, 0xe0, 0x00, 0xeb, 0x40, 0x00, 0xc0, 0xf3, 0x15, 0x20, 0x20, 0x86, 0x04, 0xe0, 0x00, 0xeb, 0x80, 0x00, 0xc0, 0xf3, 0x15, 0x20]
+                ofs = FindPattern(self.data, sig)
+            except SignatureException:
+                # V1.0.1.5 (e885 stores; same replacement asm as 022)
+                sig = [0x00, 0xeb, 0x40, 0x00, 0xc0, 0xf3, 0x55, 0x20, 0xe8, 0x85, 0x0a, 0xe0, 0x00, 0xeb, 0x40, 0x00, 0xc0, 0xf3, 0x15, 0x20, 0xe8, 0x85, 0x04, 0xe0, 0x00, 0xeb, 0x80, 0x00, 0xc0, 0xf3, 0x15, 0x20]
+                ofs = FindPattern(self.data, sig)
 
         pre = self.data[ofs:ofs+len(sig)]
         post = bytes(self.ks.asm(asm)[0])

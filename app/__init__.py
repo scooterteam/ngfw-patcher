@@ -160,9 +160,11 @@ def patch(data):
     res = []
 
     is_nb = False
+    is_f4 = False
     device = flask.request.form.get('device')
-    if device in ["1s", "pro2", "lite", "mi3", "4pro"]:
+    if device in ["1s", "pro2", "lite", "mi3", "4pro", "4proita"]:
         patcher = MiPatcher(data, device)
+        is_f4 = device == "4proita"
     elif device in ["f2pro", "f2plus", "f2", "g2", "4plus", "4max", "zt3pro", "g3", "f3pro", "gt3"]:
         patcher = NbPatcher(data, device)
         is_nb = True
@@ -270,14 +272,14 @@ def patch(data):
             res.append((f"Max-Current Sport (Acc=2): {amps_sport_max}mA", patcher.ampere_max_sport(amps_sport_max)))
 
     amps_brake_max = flask.request.form.get('amps_brake_max', None)
-    if amps_brake_max is not None:
+    if amps_brake_max is not None and not is_f4:
         amps_brake_max = int(amps_brake_max)
         assert amps_brake_max >= 5000 and amps_brake_max <= 65000, amps_brake_max
         res.append((f"Max-Current Brake: {amps_brake_max}mA",
                     patcher.ampere_brake(max_=amps_brake_max)))
 
     amps_brake_min = flask.request.form.get('amps_brake_min', None)
-    if amps_brake_min is not None:
+    if amps_brake_min is not None and not is_f4:
         amps_brake_min = int(amps_brake_min)
         assert amps_brake_min >= 0 and amps_brake_min <= 65000, amps_brake_min
         res.append((f"Min-Current Brake: {amps_brake_min}mA",
@@ -311,7 +313,7 @@ def patch(data):
     else:
         remove_kers = flask.request.form.get('remove_kers', None)
         if remove_kers is not None:
-            if device == "4pro" or (is_nb and device != "g2"):
+            if device in ("4pro", "4proita") or (is_nb and device != "g2"):
                 res.append(("Remove KERS", patcher.kers_multi(0, 0, 0)))
             else:
                 res.append(("Remove KERS", patcher.remove_kers()))
@@ -325,11 +327,11 @@ def patch(data):
         res.append(("Remove Charging Mode", patcher.remove_charging_mode()))
 
     wheelsize = flask.request.form.get('wheelsize', None)
-    if wheelsize is not None:
+    if wheelsize is not None and not is_f4:
         wheelsize = float(wheelsize)
         assert wheelsize >= 0 and wheelsize <= 100
         old_wheel = 8.5
-        if device == "4pro":
+        if device in ("4pro", "4proita"):
             old_wheel = 10.0
         mult = wheelsize/old_wheel
         res.append((f"Wheel Size: {wheelsize}\"", patcher.wheel_speed_const(mult)))
@@ -349,7 +351,7 @@ def patch(data):
                     patcher.cc_delay(cc_delay)))
 
     amm = flask.request.form.get('ammeter', None)
-    if amm is not None:
+    if amm is not None and not is_f4:
         res.append(("Current-Meter", patcher.ampere_meter()))
 
     rfm = flask.request.form.get('rfm', None)
@@ -369,14 +371,14 @@ def patch(data):
 
     blm = flask.request.form.get('blm', None)
     if blm is not None:
-        # TEMPORARY WORKAROUND FOR 4PRO
-        if device == "4pro":
+        # TEMPORARY WORKAROUND FOR 4PRO / F4
+        if device in ("4pro", "4proita"):
             res.append(("Static Brakelight", patcher.brake_light_static()))
         else:
             res.append(("Static Brakelight", patcher.brake_light()))
 
     alm = flask.request.form.get('blm_alm', None)
-    if alm is not None:
+    if alm is not None and not is_f4:
         res.append(("Auto-Light", patcher.lower_light()))
 
     pnb = flask.request.form.get('pnb', None)
@@ -384,11 +386,11 @@ def patch(data):
         res.append(("Pedestrian No-Blink", patcher.ped_noblink()))
 
     bts = flask.request.form.get('bts', None)
-    if bts is not None:
+    if bts is not None and not is_f4:
         res.append(("Button Swap", patcher.button_swap()))
 
     baud = flask.request.form.get('baud', None)
-    if baud is not None:
+    if baud is not None and not is_f4:
         res.append(("Baudrate", patcher.bms_baudrate(76800)))
 
     volt = flask.request.form.get('volt', None)
