@@ -12,7 +12,7 @@ DRV1415: converted from roller/0_legacy/drv1415.hex → firmware/fixtures/DRV141
 Xiaomi OTA MCU images under firmware/ota/xiaomi/ are a different format (no
 Scooter_Mi* ESC header) and are inventoried here as non-MiPatcher targets.
 
-V1.0.1.5 oracles: TestV1015Patches (also importable via test_v1015 shim).
+V1.0.1.5 oracles: TestV1015Patches.
 """
 from __future__ import annotations
 
@@ -56,13 +56,13 @@ DRV_MATRIX = [
     },
     {
         "drv": "DRV242",
-        "model": "1s",
+        "model": "pro2",
         "paths": [ROLLER_BINS / "DRV242.bin"],
         "min_ok": 15,
     },
     {
         "drv": "DRV245",
-        "model": "1s",
+        "model": "pro2",
         "paths": [
             FW / "ota/ninebot/scooter.v5/EC_ESC_Driver_V2.4.5.bin",
             ROLLER_BINS / "DRV245.bin",
@@ -284,7 +284,7 @@ class TestXiaomiOtaMcu(unittest.TestCase):
         print(f"MCU bin files scanned: {len(mcus)}")
 
 
-# --- V1.0.1.5 (4proita) offset oracles (formerly test_v1015.py) ---
+# --- V1.0.1.5 (4proita) offset oracles ---
 
 # File offsets (VA = 0x08004000 + off) — test oracles only
 OFF_V1015 = {

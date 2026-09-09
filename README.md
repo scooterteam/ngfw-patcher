@@ -55,8 +55,6 @@ python3 cli.py mi 4proita EC_ESC_Driver_V1.0.1.5.bin out.bin sld,sls,slp,rcm,rfm
 Ported: speed limits, phase/max amps, CRC, KERS / kers_multi, autobrake, motor start, charge gate, DPC, CC delay, shutdown, region free, modellock, volt limit, ped_noblink, static brakelight.  
 Not yet: wheel const, ampere_brake, ampere_meter, BMS baud, auto-light, button swap.
 
-Tests: `python3 -m unittest test_v1015 test_drvs`
-
 ### Your Mods??
 Contribute your mod to this project!
 
