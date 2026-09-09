@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Smoke-test MiPatcher against every DRV listed in README.
+"""MiPatcher tests: README DRV smoke + V1.0.1.5 (4proita) oracles.
 
 Repo firmware/ (preferred) plus optional roller archive:
   …/hax/roller/4_firmware/bins/DRV{016,017,242,245,247,248,252,319,321}.bin
@@ -11,15 +11,21 @@ DRV1415: converted from roller/0_legacy/drv1415.hex → firmware/fixtures/DRV141
 
 Xiaomi OTA MCU images under firmware/ota/xiaomi/ are a different format (no
 Scooter_Mi* ESC header) and are inventoried here as non-MiPatcher targets.
+
+V1.0.1.5 oracles: TestV1015Patches (also importable via test_v1015 shim).
 """
 from __future__ import annotations
 
 import unittest
 from pathlib import Path
 
+import keystone
+
 ROOT = Path(__file__).resolve().parents[3]
 FW = ROOT / "firmware"
 XIAOMI = FW / "ota" / "xiaomi"
+F4_BIN = FW / "kits/4pro-f4-stlink/EC_ESC_Driver_V1.0.1.5.bin"
+F1_BIN = FW / "kits/4pro-stlink/EC_ESC_Driver_V0.2.2.bin"
 # Optional external archive (plaintext DRV*.bin collection).
 ROLLER_BINS = Path(
     "/media/jethro/d07c3610-f34e-4f3e-ab08-baa62f0de2ab"
@@ -276,6 +282,241 @@ class TestXiaomiOtaMcu(unittest.TestCase):
         # Keep a stable note of what we have for future porting.
         print(f"\nXiaomi MCU products ({len(products)}): {sorted(products)}")
         print(f"MCU bin files scanned: {len(mcus)}")
+
+
+# --- V1.0.1.5 (4proita) offset oracles (formerly test_v1015.py) ---
+
+# File offsets (VA = 0x08004000 + off) — test oracles only
+OFF_V1015 = {
+    "speed_sport": 0x71FA,
+    "crc": 0x71FC,
+    "amp_sport": 0x7200,
+    "speed_ped": 0x7208,
+    "amp_ped": 0x7228,
+    "amp_max_ped": 0x723C,
+    "amp_drive": 0x7252,
+    "amp_sport_cmp": 0x725E,
+    "amp_drive_cmp": 0x7256,
+    "amp_max_sport": 0x726A,
+    "speed_drive": 0x727C,
+    "amp_max_drive": 0x7280,
+    "autobrake": 0x735C,
+    "kers": 0x747E,
+    "kers_multi": 0x74A4,
+    "mss_hi": 0x759A,
+    "modellock": 0x35F8,
+    "volt": 0x3E74,
+    "shutdown": 0x197A,
+    "dpc_clear": 0x11D6,
+    "dpc_force": 0x7B88,
+    "charge_cbz": 0x84DC,
+    "cc_delay": 0x1D96,
+    "region_3e": 0x7C2C,
+    "region_r2": 0x7C40,
+    "region_r1": 0x7C50,
+    "ped_beq": 0x0B4C,
+    "blm_brake": 0x0B42,
+    "blm_ped": 0x0B4A,
+}
+
+MSS_SCALE_V1015 = 410
+_KS = keystone.Ks(keystone.KS_ARCH_ARM, keystone.KS_MODE_THUMB)
+
+
+def _asm(s: str) -> bytes:
+    return bytes(_KS.asm(s)[0])
+
+
+def _make_v1015_patcher(data: bytes):
+    from mi_patcher import MiPatcher
+    return MiPatcher(bytearray(data), "4proita")
+
+
+def _load_fw(path: Path) -> bytes:
+    if not path.is_file():
+        raise unittest.SkipTest(f"missing firmware: {path}")
+    return path.read_bytes()
+
+
+class TestV1015Patches(unittest.TestCase):
+    """V1.0.1.5 (STM32F4) patch oracles for MiPatcher(..., \"4proita\")."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.stock = _load_fw(F4_BIN)
+
+    def setUp(self):
+        self.p = _make_v1015_patcher(self.stock)
+
+    def test_speed_limits(self):
+        r = self.p.speed_limit_ped(9)
+        _assert_sites(self.p.data, r, self.stock, "speed_limit_ped")
+        self.assertEqual(
+            self.p.data[OFF_V1015["speed_ped"]:OFF_V1015["speed_ped"] + 4],
+            _asm("MOV.W R9, #9"),
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.speed_limit_drive(22)
+        _assert_sites(self.p.data, r, self.stock, "speed_limit_drive")
+        self.assertEqual(
+            self.p.data[OFF_V1015["speed_drive"]:OFF_V1015["speed_drive"] + 2],
+            _asm("MOVS R0, #22"),
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.speed_limit_sport(27)
+        _assert_sites(self.p.data, r, self.stock, "speed_limit_sport")
+        self.assertEqual(
+            self.p.data[OFF_V1015["speed_sport"]:OFF_V1015["speed_sport"] + 2],
+            _asm("MOVS R3, #27"),
+        )
+
+    def test_crc(self):
+        r = self.p.current_raising_coeff(600)
+        _assert_sites(self.p.data, r, self.stock, "current_raising_coeff")
+        self.assertEqual(
+            self.p.data[OFF_V1015["crc"]:OFF_V1015["crc"] + 4],
+            _asm("MOVW R2, #600"),
+        )
+
+    def test_amperes(self):
+        r = self.p.ampere_ped(10000)
+        _assert_sites(self.p.data, r, self.stock, "ampere_ped")
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.ampere_drive(20000)
+        _assert_sites(self.p.data, r, self.stock, "ampere_drive")
+        self.assertEqual(
+            self.p.data[OFF_V1015["amp_drive_cmp"]:OFF_V1015["amp_drive_cmp"] + 2],
+            _asm("CMP R0, R0"),
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.ampere_sport(30000)
+        _assert_sites(self.p.data, r, self.stock, "ampere_sport")
+        self.assertEqual(
+            self.p.data[OFF_V1015["amp_sport_cmp"]:OFF_V1015["amp_sport_cmp"] + 2],
+            _asm("CMP R0, R0"),
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.ampere_max(10000, 35000, 55000)
+        _assert_sites(self.p.data, r, self.stock, "ampere_max")
+
+    def test_kers_and_autobrake(self):
+        r = self.p.remove_kers()
+        _assert_sites(self.p.data, r, self.stock, "remove_kers")
+        self.assertEqual(
+            self.p.data[OFF_V1015["kers"]:OFF_V1015["kers"] + 2],
+            _asm("MOVS R0, #0"),
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.kers_multi(2, 5, 10)
+        _assert_sites(self.p.data, r, self.stock, "kers_multi")
+        self.assertEqual(len(bytes.fromhex(r[0][3])), 32)
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.remove_autobrake()
+        _assert_sites(self.p.data, r, self.stock, "remove_autobrake")
+        self.assertEqual(
+            self.p.data[OFF_V1015["autobrake"]:OFF_V1015["autobrake"] + 4],
+            _asm("MOVW R12, #0xffff"),
+        )
+
+    def test_motor_start(self):
+        r = self.p.motor_start_speed(3.0)
+        _assert_sites(self.p.data, r, self.stock, "motor_start_speed")
+        self.assertEqual(int(r[0][1], 16), OFF_V1015["mss_hi"])
+        self.assertEqual(
+            bytes.fromhex(r[0][3]),
+            _asm(f"MOVW R7, #{int(round(3.0 * MSS_SCALE_V1015))}"),
+        )
+
+    def test_charge_dpc_cc_shutdown(self):
+        r = self.p.remove_charging_mode()
+        _assert_sites(self.p.data, r, self.stock, "remove_charging_mode")
+        self.assertEqual(
+            self.p.data[OFF_V1015["charge_cbz"]:OFF_V1015["charge_cbz"] + 2],
+            _asm("NOP"),
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.dpc()
+        _assert_sites(self.p.data, r, self.stock, "dpc")
+        self.assertEqual(
+            self.p.data[OFF_V1015["dpc_clear"]:OFF_V1015["dpc_clear"] + 4],
+            _asm("NOP") * 2,
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.cc_delay(2.0)
+        _assert_sites(self.p.data, r, self.stock, "cc_delay")
+        self.assertEqual(
+            self.p.data[OFF_V1015["cc_delay"]:OFF_V1015["cc_delay"] + 4],
+            _asm("MOV.W R1, #400"),
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.shutdown_time(1.0)
+        _assert_sites(self.p.data, r, self.stock, "shutdown_time")
+        self.assertEqual(
+            self.p.data[OFF_V1015["shutdown"]:OFF_V1015["shutdown"] + 4],
+            _asm("CMP.W R0, #200"),
+        )
+
+    def test_region_modellock_volt_lights(self):
+        r = self.p.region_free()
+        _assert_sites(self.p.data, r, self.stock, "region_free")
+        self.assertEqual(
+            self.p.data[OFF_V1015["region_3e"]:OFF_V1015["region_3e"] + 4],
+            _asm("NOP.W"),
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.remove_modellock()
+        _assert_sites(self.p.data, r, self.stock, "remove_modellock")
+        self.assertEqual(
+            self.p.data[OFF_V1015["modellock"]:OFF_V1015["modellock"] + 2],
+            b"\x01\xe0",
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.volt_limit(45.01)
+        _assert_sites(self.p.data, r, self.stock, "volt_limit")
+        self.assertNotEqual(r[0][2], r[0][3])
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.ped_noblink()
+        _assert_sites(self.p.data, r, self.stock, "ped_noblink")
+        self.assertEqual(
+            self.p.data[OFF_V1015["ped_beq"]:OFF_V1015["ped_beq"] + 2],
+            _asm("NOP"),
+        )
+
+        self.p = _make_v1015_patcher(self.stock)
+        r = self.p.brake_light_static()
+        _assert_sites(self.p.data, r, self.stock, "brake_light_static")
+        self.assertEqual(
+            self.p.data[OFF_V1015["blm_brake"]:OFF_V1015["blm_brake"] + 2],
+            _asm("CMP R1, #0xFF"),
+        )
+        self.assertEqual(
+            self.p.data[OFF_V1015["blm_ped"]:OFF_V1015["blm_ped"] + 2],
+            _asm("CMP R1, #0xFF"),
+        )
+
+    def test_f1_regression_speed_drive(self):
+        stock = _load_fw(F1_BIN)
+        from mi_patcher import MiPatcher
+        p = MiPatcher(bytearray(stock), "4pro")
+        r = p.speed_limit_drive(22)
+        self.assertTrue(r)
+        ofs = int(r[0][1], 16)
+        post = bytes.fromhex(r[0][3])
+        self.assertEqual(p.data[ofs:ofs + len(post)], post)
+        self.assertNotEqual(r[0][2], r[0][3])
 
 
 if __name__ == "__main__":
