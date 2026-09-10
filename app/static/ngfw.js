@@ -97,7 +97,7 @@ function CheckForm(name, cb) {
     if (o.value != 0) {
         // temp
         const dev = document.getElementById("devselect").value;
-        if (dev == '4pro' || dev == '4proita') && name == forms.BLM_ALM) {
+        if ((dev == '4pro' || dev == '4proita') && name == forms.BLM_ALM) {
             return;
         }
         o.disabled = !cb.checked;
